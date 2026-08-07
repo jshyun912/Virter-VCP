@@ -1,0 +1,10 @@
+package jshyun912.backend.exception;
+
+public enum ErrorMessage {
+    CODEFORCES_API_FAILED,
+    CODEFORCES_USER_NOT_FOUND,
+    CONTEST_DATA_LOAD_FAILED,
+    CONTEST_DATA_SAVE_FAILED,
+    INVALID_SEARCH_REQUEST,
+    INTERNAL_SERVER_ERROR
+}
