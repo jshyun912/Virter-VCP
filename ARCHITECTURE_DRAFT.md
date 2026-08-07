@@ -1,4 +1,4 @@
-# Virconcon. 아키텍처 초안
+# Virter 아키텍처 초안
 
 ## 목적
 
@@ -11,7 +11,7 @@
 | Frontend | SvelteKit | 사용자 입력과 추천 결과 표시 (현재 기본 화면) |
 | Backend | Spring Boot 4 / Java 25 | 검색 API와 Codeforces 연동 |
 | 외부 API | Codeforces API | 사용자 제출 이력과 대회 목록 조회 |
-| 파일 저장소 | `data/divisions/*.json` | Div별 완료 대회 목록의 로컬 스냅샷 |
+| 런타임 파일 저장소 | `data/divisions/*.json` | 실행 중 생성되는 Div별 완료 대회 목록의 로컬 스냅샷 |
 
 ## 디렉터리 개요
 
@@ -26,7 +26,7 @@ backend/                       Spring Boot 애플리케이션
     dto/codeforces/            Codeforces API 응답 DTO
     config/                    RestClient 설정
     exception/                 API 예외와 공통 오류 응답 처리
-data/divisions/                Div별 대회 목록 JSON
+data/divisions/                실행 중 생성되는 Div별 대회 목록 JSON (저장소에 미포함)
 ```
 
 ## Backend 요청 흐름
@@ -78,7 +78,7 @@ SearchResponse { contestList }
 | `Div4.json` | `div4ContestList` |
 | `others.json` | `otherContestList` |
 
-저장 경로는 `app.divisions-directory` 설정으로 변경할 수 있으며 기본값은 실행 디렉터리 기준 `data/divisions`다. 파일이 없으면 빈 Codeforces API 응답 형식의 JSON을 생성한다. 이 디렉터리는 Git에서 제외되는 런타임 데이터다.
+저장 경로는 `app.divisions-directory` 설정으로 변경할 수 있으며 기본값은 실행 디렉터리 기준 `data/divisions`다. 저장소는 이 디렉터리나 초기 JSON 파일을 제공하지 않는다. 애플리케이션은 디렉터리 또는 파일이 없으면 빈 Codeforces API 응답 형식으로 생성하며, 생성된 데이터는 Git에서 제외된다.
 
 대회 목록 자동 갱신 및 JSON 반영 로직은 현재 2차 구현 대상으로 주석 처리되어 있다.
 
