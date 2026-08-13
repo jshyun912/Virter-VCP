@@ -1,42 +1,6 @@
-# sv
+# FRONTEND 작업 규칙
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
-
-## Creating a project
-
-If you're seeing this, you've probably already done this step. Congrats!
-
-```sh
-# create a new project
-npx sv create my-app
-```
-
-To recreate this project with the same configuration:
-
-```sh
-# recreate this project
-npx sv@0.16.6 create --template minimal --types ts --install npm front
-```
-
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```sh
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
-
-```sh
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+- Svelte 5 runes 문법과 기존 SvelteKit 구조를 사용합니다.
+- 검색 도메인 로직은 `$lib/search.ts`에 두고 Node 내장 테스트 러너로 검증합니다.
+- UI 라이브러리나 상태 관리 의존성은 추가하지 않습니다.
+- 작업 완료 전에 `npm test`, `npm run check`, `npm run build`를 실행합니다.
