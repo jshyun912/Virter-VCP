@@ -1,2 +1,2 @@
 app:
-  divisions-directory: build/test-data/divisions
+  divisions-directory: src/test/resources/divisions
