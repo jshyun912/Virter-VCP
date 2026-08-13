@@ -19,7 +19,6 @@ import org.springframework.web.client.RestClientException;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -89,18 +88,12 @@ public class CodeforcesService {
         div4ContestList.addAll(readContestList("Div4.json"));
         otherContestList.addAll(readContestList("others.json"));
 
-        // refreshContest();
     }
 
     private List<Contest> readContestList(String fileName) {
         Path divisionFile = divisionsDirectory.resolve(fileName);
 
         try {
-            Files.createDirectories(divisionsDirectory);
-            if (Files.notExists(divisionFile)) {
-                writeContestList(fileName, List.of());
-            }
-
             try (InputStream inputStream = Files.newInputStream(divisionFile)) {
                 return jsonMapper.readValue(inputStream, new TypeReference<CodeforcesResponse<List<Contest>>>() {
                 }).result();
@@ -108,80 +101,6 @@ public class CodeforcesService {
         } catch (IOException | JacksonException exception) {
             throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR,
                     ErrorMessage.CONTEST_DATA_LOAD_FAILED, "대회 목록 파일 " + divisionFile + "을 불러오지 못했습니다.", exception);
-        }
-    }
-
-    /* 2차 구현에서 주석 해제
-    public CodeforcesResponse<List<Contest>> getAllContest() {
-        try {
-            CodeforcesResponse<List<Contest>> response = restClientConfig.restClient().get()
-                    .uri("https://codeforces.com/api/contest.list?gym=false")
-                    .retrieve()
-                    .body(new ParameterizedTypeReference<>() {});
-            return requireSuccessfulResponse(response);
-        } catch (RestClientException exception) {
-            throw new ApiException(HttpStatus.BAD_GATEWAY, ErrorMessage.CODEFORCES_API_FAILED,
-                    "Codeforces contest.list 요청에 실패했습니다.", exception);
-        }
-    }
-
-
-    public void refreshContest() {
-        List<Contest> contestList = getAllContest().result();
-
-        if (contestList.size() == div1ContestList.size() + div12ContestList.size()
-                + div2ContestList.size() + div2EduContestList.size()
-                + div3ContestList.size() + div4ContestList.size() + otherContestList.size()) {
-            return;
-        }
-
-        for (Contest contest : contestList) {
-            if (!contest.phase().equals("FINISHED")) { continue; }
-            if (containsContest(contest.id())) { continue; }
-
-            if (contest.name().contains("Div. 1 + Div. 2")) {
-                addContest(div12ContestList, "Div1Plus2.json", contest);
-            } else if (contest.name().contains("Educational") && "ICPC".equals(contest.type())) {
-                addContest(div2EduContestList, "Div2Educational.json", contest);
-            } else if (contest.name().contains("Div. 1")) {
-                addContest(div1ContestList, "Div1.json", contest);
-            } else if (contest.name().contains("Div. 2")) {
-                addContest(div2ContestList, "Div2.json", contest);
-            } else if (contest.name().contains("Div. 3")) {
-                addContest(div3ContestList, "Div3.json", contest);
-            } else if (contest.name().contains("Div. 4")) {
-                addContest(div4ContestList, "Div4.json", contest);
-            } else {
-                addContest(otherContestList, "others.json", contest);
-            }
-        }
-    }
-
-    private boolean containsContest(Integer contestId) {
-        return div1ContestList.stream().anyMatch(contest -> contest.id().equals(contestId))
-                || div12ContestList.stream().anyMatch(contest -> contest.id().equals(contestId))
-                || div2ContestList.stream().anyMatch(contest -> contest.id().equals(contestId))
-                || div2EduContestList.stream().anyMatch(contest -> contest.id().equals(contestId))
-                || div3ContestList.stream().anyMatch(contest -> contest.id().equals(contestId))
-                || div4ContestList.stream().anyMatch(contest -> contest.id().equals(contestId))
-                || otherContestList.stream().anyMatch(contest -> contest.id().equals(contestId));
-    }
-
-    private void addContest(List<Contest> contestList, String fileName, Contest contest) {
-        contestList.add(contest);
-        writeContestList(fileName, contestList);
-        log.info("대회 {} ({})를 {}에 추가했습니다.", contest.id(), contest.name(), fileName);
-    } */
-
-    private void writeContestList(String fileName, List<Contest> contestList) {
-        Path divisionFile = divisionsDirectory.resolve(fileName);
-
-        try (OutputStream outputStream = Files.newOutputStream(divisionFile)) {
-            jsonMapper.writerWithDefaultPrettyPrinter()
-                    .writeValue(outputStream, new CodeforcesResponse<>("OK", null, contestList));
-        } catch (IOException | JacksonException exception) {
-            throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR,
-                    ErrorMessage.CONTEST_DATA_SAVE_FAILED, "대회 목록 파일 " + divisionFile + " 저장에 실패했습니다.", exception);
         }
     }
 

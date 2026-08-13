@@ -34,7 +34,6 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
-import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.json.JsonMapper;
 
 @ExtendWith(MockitoExtension.class)
@@ -309,21 +308,21 @@ class CodeforcesServiceTest {
         }
 
         @Test
-        @DisplayName("division JSON 파일이 없으면 빈 JSON 파일을 생성한다")
-        void thenCreatesEmptyDivisionFilesWhenFilesAreMissing() throws IOException {
+        @DisplayName("division JSON 파일이 없으면 대회 목록 로드 예외를 던진다")
+        void thenThrowsLoadExceptionWhenDivisionFileIsMissing() {
             // given
             JsonMapper realJsonMapper = JsonMapper.builder().build();
             CodeforcesService service = new CodeforcesService(restClientConfig, realJsonMapper);
             service.setDivisionsDirectory(divisionsDirectory);
 
             // when
-            service.initContestList();
+            ApiException exception = assertThrows(ApiException.class, service::initContestList);
 
             // then
-            assertEquals(List.of(), service.div1ContestList);
-            assertEquals(List.of(), realJsonMapper.readValue(Files.newInputStream(divisionsDirectory.resolve("Div1.json")),
-                    new TypeReference<CodeforcesResponse<List<Contest>>>() {
-                    }).result());
+            assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, exception.getHttpStatus());
+            assertEquals(ErrorMessage.CONTEST_DATA_LOAD_FAILED, exception.getErrorMessage());
+            assertEquals("대회 목록 파일 " + divisionsDirectory.resolve("Div1.json") + "을 불러오지 못했습니다.",
+                    exception.getDetail());
         }
 
         @Test

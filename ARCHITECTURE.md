@@ -8,10 +8,10 @@
 
 | 영역 | 기술 | 역할 |
 | --- | --- | --- |
-| Frontend | SvelteKit | 사용자 입력과 추천 결과 표시 (현재 기본 화면) |
+| Frontend | SvelteKit / Nginx | 사용자 입력, 추천 결과 표시, 백엔드 내부 프록시 |
 | Backend | Spring Boot 4 / Java 25 | 검색 API와 Codeforces 연동 |
 | 외부 API | Codeforces API | 사용자 제출 이력과 대회 목록 조회 |
-| 런타임 파일 저장소 | `data/divisions/*.json` | 실행 중 생성되는 Div별 완료 대회 목록의 로컬 스냅샷 |
+| 운영 입력 파일 | `data/divisions/*.json` | 운영자가 관리하는 Div별 완료 대회 목록 |
 
 ## 디렉터리 개요
 
@@ -48,7 +48,27 @@ SearchService
 SearchResponse { contestList }
 ```
 
-`CodeforcesService`는 `RestClient`로 `user.status`를 호출한다. `contest.list` 호출 코드는 2차 구현 대상으로 주석 처리되어 있다.
+`CodeforcesService`는 `RestClient`로 `user.status`를 호출한다. 대회 목록은 Codeforces에서 자동 갱신하지 않고 운영자가 제공한 JSON만 읽는다.
+
+## 배포 요청 흐름
+
+```text
+Internet
+   |
+   v
+NGINX Proxy Manager (도메인 / TLS)
+   |
+   v
+virter-frontend:80 (정적 SvelteKit / Nginx)
+   |  /api/*
+   v
+backend:8080 (Spring Boot)
+   |
+   v
+Codeforces API
+```
+
+NPM과 프론트엔드는 외부 proxy 네트워크를 공유한다. 백엔드는 프론트엔드와의 app 네트워크에만 참가하고 호스트 포트를 공개하지 않는다. app 네트워크는 Codeforces API 호출을 위해 외부 통신을 허용한다.
 
 ## 요청 검증과 오류 처리
 
@@ -78,9 +98,9 @@ SearchResponse { contestList }
 | `Div4.json` | `div4ContestList` |
 | `others.json` | `otherContestList` |
 
-저장 경로는 `app.divisions-directory` 설정으로 변경할 수 있으며 기본값은 실행 디렉터리 기준 `data/divisions`다. 저장소는 이 디렉터리나 초기 JSON 파일을 제공하지 않는다. 애플리케이션은 디렉터리 또는 파일이 없으면 빈 Codeforces API 응답 형식으로 생성하며, 생성된 데이터는 Git에서 제외된다.
+저장 경로는 `app.divisions-directory` 설정으로 변경할 수 있으며 기본값은 실행 디렉터리 기준 `data/divisions`다. 저장소는 이 디렉터리나 JSON 파일을 제공하지 않는다. 운영자가 일곱 파일을 모두 준비해야 하며, 파일 누락 또는 역직렬화 실패는 애플리케이션 시작 실패로 처리한다.
 
-대회 목록 자동 갱신 및 JSON 반영 로직은 현재 2차 구현 대상으로 주석 처리되어 있다.
+Docker 배포에서는 호스트의 `data/divisions`를 `/app/data/divisions`에 읽기 전용으로 마운트한다.
 
 ## `dif` 비트마스크 계약
 
@@ -98,9 +118,8 @@ SearchResponse { contestList }
 
 비트 값 `64`는 `otherContestList`를 위한 예약 값이다. 현재 검색 추천 로직은 이 비트를 사용하지 않는다.
 
-## MVP 제약과 다음 단계
+## 현재 제약
 
-- Frontend 검색 UI와 Backend API 연결이 아직 없다.
 - Codeforces API 재시도와 호출 제한 전용 처리가 없다.
 - 추천은 균등 무작위이며 난이도·최근성·대회 길이는 고려하지 않는다.
-- `data/divisions`의 배포 환경용 영속 저장 방식은 정해지지 않았다.
+- 대회 목록 JSON은 운영자가 직접 갱신해야 한다.
