@@ -4,6 +4,7 @@
 /.agents/
 /.ai/
 /.codex/
+/.worktrees/
 /docs/superpowers/
 
 # Docker deployment files (temporarily local-only)
