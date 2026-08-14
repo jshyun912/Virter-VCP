@@ -2,7 +2,15 @@
 	import { prefersReducedMotion } from 'svelte/motion';
 	import { fly } from 'svelte/transition';
 	import logo from '$lib/assets/virter-logo.png';
-	import { getDifficultyMask, mergeHandles } from '$lib/search';
+	import {
+		buildSearchUrl,
+		formatDuration,
+		getContestUrl,
+		getDifficultyMask,
+		getSearchErrorMessage,
+		mergeHandles
+	} from '$lib/search';
+	import type { ApiErrorResponse, Contest, SearchResponse } from '$lib/search';
 
 	const divisions = [
 		{ label: 'Div. 1', value: 32 },
@@ -12,16 +20,22 @@
 		{ label: 'Div. 3', value: 2 },
 		{ label: 'Div. 4', value: 1 }
 	] as const;
+	const defaultDivisionValues = divisions.map(({ value }) => value);
 
 	let handles = $state<string[]>([]);
 	let handleInput = $state('');
 	let handleInputElement: HTMLInputElement;
-	let selectedDivisions = $state(new Set<number>(divisions.map(({ value }) => value)));
+	let selectedDivisions = $state(new Set<number>(defaultDivisionValues));
+	let contests = $state<Contest[]>([]);
+	let searchError = $state('');
+	let hasSearched = $state(false);
+	let isSearching = $state(false);
+	let latestSearchId = 0;
 
 	const difficultyMask = $derived(getDifficultyMask([...selectedDivisions]));
 
 	function commitHandles() {
-		handles = mergeHandles(handles, handleInput);
+		updateHandles(mergeHandles(handles, handleInput));
 		handleInput = '';
 		handleInputElement.value = '';
 	}
@@ -39,7 +53,7 @@
 		}
 
 		if (event.key === 'Backspace' && handleInput === '') {
-			handles = handles.slice(0, -1);
+			updateHandles(handles.slice(0, -1));
 		}
 	}
 
@@ -48,7 +62,21 @@
 	}
 
 	function removeHandle(index: number) {
-		handles = handles.filter((_, handleIndex) => handleIndex !== index);
+		updateHandles(handles.filter((_, handleIndex) => handleIndex !== index));
+	}
+
+	function resetSearch() {
+		selectedDivisions = new Set(defaultDivisionValues);
+		contests = [];
+		searchError = '';
+		hasSearched = false;
+		isSearching = false;
+		latestSearchId += 1;
+	}
+
+	function updateHandles(nextHandles: string[]) {
+		handles = nextHandles;
+		if (handles.length === 0) resetSearch();
 	}
 
 	function toggleDivision(value: number) {
@@ -56,6 +84,35 @@
 		if (next.has(value)) next.delete(value);
 		else next.add(value);
 		selectedDivisions = next;
+	}
+
+	async function searchContests() {
+		const searchId = ++latestSearchId;
+		isSearching = true;
+		try {
+			const response = await fetch(buildSearchUrl(handles, difficultyMask));
+			if (!response.ok) {
+				const error = (await response.json()) as ApiErrorResponse;
+				if (searchId !== latestSearchId) return;
+				contests = [];
+				searchError = getSearchErrorMessage(error.message);
+				hasSearched = true;
+				return;
+			}
+
+			const data = (await response.json()) as SearchResponse;
+			if (searchId !== latestSearchId) return;
+			contests = data.contestList;
+			searchError = '';
+			hasSearched = true;
+		} catch {
+			if (searchId !== latestSearchId) return;
+			contests = [];
+			searchError = getSearchErrorMessage();
+			hasSearched = true;
+		} finally {
+			if (searchId === latestSearchId) isSearching = false;
+		}
 	}
 </script>
 
@@ -120,7 +177,39 @@
 					</div>
 				</fieldset>
 
-				<button class="search-button" type="button" disabled={difficultyMask === 0}>대회 찾기</button>
+				<button
+					class="search-button"
+					type="button"
+					disabled={difficultyMask === 0 || isSearching}
+					onclick={searchContests}
+				>
+					{isSearching ? '찾는 중…' : '대회 찾기'}
+				</button>
+
+				{#if hasSearched}
+					<div
+						class="search-results"
+						transition:fly={{ y: 12, duration: prefersReducedMotion.current ? 0 : 220 }}
+					>
+						{#if searchError}
+							<p class="empty-results" role="alert">{searchError}</p>
+						{:else if contests.length > 0}
+							{#each contests as contest (contest.id)}
+								<a
+									class="contest-card"
+									href={getContestUrl(contest.id)}
+									target="_blank"
+									rel="noreferrer"
+								>
+									<strong>{contest.name}</strong>
+									<span>{formatDuration(contest.durationSeconds)}</span>
+								</a>
+							{/each}
+						{:else}
+							<p class="empty-results" role="status">조건에 맞는 대회를 찾지 못했습니다.</p>
+						{/if}
+					</div>
+				{/if}
 			</div>
 		{/if}
 	</section>
@@ -165,7 +254,7 @@
 
 	.logo-frame {
 		display: flex;
-		width: min(480px, 90vw);
+		width: min(480px, 60%);
 		aspect-ratio: 16 / 9;
 		margin-bottom: 28px;
 		align-items: center;
@@ -339,8 +428,60 @@
 		cursor: not-allowed;
 	}
 
+	.search-results {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 12px;
+		margin-top: 14px;
+	}
+
+	.contest-card {
+		display: flex;
+		min-width: 0;
+		min-height: 132px;
+		padding: 20px;
+		justify-content: space-between;
+		flex-direction: column;
+		gap: 18px;
+		border: 1px solid #dadce0;
+		border-radius: 20px;
+		color: #202124;
+		background: #fff;
+		box-shadow: 0 1px 2px rgb(60 64 67 / 8%);
+		text-decoration: none;
+		transition: border-color 140ms ease, box-shadow 140ms ease, transform 140ms ease;
+	}
+
+	.contest-card:hover {
+		border-color: #aecbfa;
+		box-shadow: 0 4px 12px rgb(60 64 67 / 16%);
+		transform: translateY(-2px);
+	}
+
+	.contest-card strong {
+		line-height: 1.45;
+		overflow-wrap: anywhere;
+	}
+
+	.contest-card span {
+		font-size: 0.88rem;
+		color: #5f6368;
+	}
+
+	.empty-results {
+		grid-column: 1 / -1;
+		margin: 0;
+		padding: 20px;
+		border: 1px solid #dadce0;
+		border-radius: 20px;
+		text-align: center;
+		color: #5f6368;
+		background: #fff;
+	}
+
 	.handle-token button:focus-visible,
-	.search-button:focus-visible {
+	.search-button:focus-visible,
+	.contest-card:focus-visible {
 		outline: 2px solid #1a73e8;
 		outline-offset: 2px;
 	}
@@ -363,6 +504,10 @@
 
 		.division-grid {
 			grid-template-columns: repeat(3, minmax(0, 1fr));
+		}
+
+		.search-results {
+			grid-template-columns: 1fr;
 		}
 	}
 
