@@ -1,6 +1,8 @@
 package jshyun912.backend.config;
 
 import com.sun.net.httpserver.HttpServer;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.client.RestClientException;
 
@@ -11,8 +13,10 @@ import java.time.Duration;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 
+@Tag("integration")
 class RestClientConfigTest {
     @Test
+    @DisplayName("Codeforces 요청이 read timeout을 초과하면 예외가 발생한다")
     void readTimeoutStopsASlowCodeforcesRequest() throws IOException {
         HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
         server.createContext("/", exchange -> {
