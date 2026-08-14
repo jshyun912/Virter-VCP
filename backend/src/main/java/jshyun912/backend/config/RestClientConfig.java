@@ -11,10 +11,6 @@ import org.springframework.web.client.RestClient;
 
 @Configuration
 public class RestClientConfig {
-    public RestClient restClient() {
-        return restClient(Duration.ofSeconds(5), Duration.ofSeconds(30));
-    }
-
     @Bean
     public RestClient restClient(
             @Value("${app.codeforces.connect-timeout:5s}") Duration connectTimeout,

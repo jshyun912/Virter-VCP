@@ -9,7 +9,6 @@ import static org.mockito.BDDMockito.willReturn;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.spy;
 
-import jshyun912.backend.config.RestClientConfig;
 import jshyun912.backend.dto.codeforces.Contest;
 import jshyun912.backend.dto.search.SearchRequest;
 import jshyun912.backend.dto.search.SearchResponse;
@@ -26,13 +25,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.client.RestClient;
 import tools.jackson.databind.json.JsonMapper;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("SearchService")
 class SearchServiceTest {
     @Mock
-    private RestClientConfig restClientConfig;
+    private RestClient restClient;
 
     @Mock
     private JsonMapper jsonMapper;
@@ -42,7 +42,7 @@ class SearchServiceTest {
 
     @BeforeEach
     void setUp() {
-        codeforcesService = spy(new CodeforcesService(restClientConfig, jsonMapper));
+        codeforcesService = spy(new CodeforcesService(restClient, jsonMapper));
         searchService = new SearchService(codeforcesService);
     }
 

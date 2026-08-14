@@ -1,7 +1,6 @@
 package jshyun912.backend.service.codeforces;
 
 import jakarta.annotation.PostConstruct;
-import jshyun912.backend.config.RestClientConfig;
 import jshyun912.backend.dto.codeforces.CodeforcesResponse;
 import jshyun912.backend.dto.codeforces.Contest;
 import jshyun912.backend.dto.codeforces.Submission;
@@ -15,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 
 import java.io.IOException;
@@ -36,7 +36,7 @@ import tools.jackson.databind.json.JsonMapper;
 public class CodeforcesService {
     private static final Path DEFAULT_DIVISIONS_DIRECTORY = Path.of("data", "divisions");
 
-    private final RestClientConfig restClientConfig;
+    private final RestClient restClient;
     private final JsonMapper jsonMapper;
     @Value("${app.divisions-directory:data/divisions}")
     @Setter(AccessLevel.PACKAGE)
@@ -52,7 +52,7 @@ public class CodeforcesService {
 
     public CodeforcesResponse<List<Submission>> getSubmissions(String handle) {
         try {
-            CodeforcesResponse<List<Submission>> response = restClientConfig.restClient().get()
+            CodeforcesResponse<List<Submission>> response = restClient.get()
                     .uri("https://codeforces.com/api/user.status?handle={handle}", handle)
                     .retrieve()
                     .onStatus(status -> status.value() == HttpStatus.BAD_REQUEST.value(), (request, errorResponse) -> {
