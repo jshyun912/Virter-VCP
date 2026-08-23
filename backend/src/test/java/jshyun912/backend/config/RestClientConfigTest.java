@@ -18,9 +18,11 @@ class RestClientConfigTest {
     @Test
     @DisplayName("Codeforces 요청이 read timeout을 초과하면 예외가 발생한다")
     void readTimeoutStopsASlowCodeforcesRequest() throws IOException {
-        HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
+        CountDownLatch requestStarted = new CountDownLatch(1);
+        HttpServer server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
         server.createContext("/", exchange -> {
             try {
+                requestStarted.countDown();
                 Thread.sleep(1000);
                 exchange.sendResponseHeaders(200, 0);
             } catch (InterruptedException exception) {
@@ -35,9 +37,10 @@ class RestClientConfigTest {
             var client = new RestClientConfig().restClient(Duration.ofSeconds(1), Duration.ofMillis(50));
             assertTimeoutPreemptively(Duration.ofSeconds(2), () -> assertThrows(
                     RestClientException.class,
-                    () -> client.get().uri("http://localhost:" + server.getAddress().getPort())
+                    () -> client.get().uri("http://127.0.0.1:" + server.getAddress().getPort())
                             .retrieve()
                             .toBodilessEntity()));
+            assertTrue(requestStarted.await(1, TimeUnit.SECONDS));
         } finally {
             server.stop(0);
         }
