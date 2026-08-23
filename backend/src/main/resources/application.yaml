@@ -1,3 +1,7 @@
 spring:
   application:
     name: backend
+app:
+  codeforces:
+    connect-timeout: 5s
+    read-timeout: 30s

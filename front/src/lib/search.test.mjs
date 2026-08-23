@@ -1,9 +1,10 @@
 import assert from 'node:assert/strict';
-import test from 'node:test';
+import { test } from 'vitest';
 
 import {
 	buildSearchUrl,
 	formatDuration,
+	getContestUrl,
 	getDifficultyMask,
 	getSearchErrorMessage,
 	mergeHandles,
@@ -36,12 +37,16 @@ test('핸들을 반복 쿼리 파라미터로 검색 URL에 넣는다', () => {
 	);
 });
 
+test('대회 ID로 Codeforces 대회 URL을 만든다', () => {
+	assert.equal(getContestUrl(2037), 'https://codeforces.com/contest/2037');
+});
+
 test('백엔드 오류 코드를 사용자용 메시지로 변환한다', () => {
 	assert.equal(getSearchErrorMessage('CODEFORCES_USER_NOT_FOUND'), 'Codeforces 사용자를 찾을 수 없습니다.');
 	assert.equal(getSearchErrorMessage('INVALID_SEARCH_REQUEST'), '검색 조건을 확인해 주세요.');
 	assert.equal(
 		getSearchErrorMessage('CODEFORCES_API_FAILED'),
-		'Codeforces 서버와 통신하지 못했습니다. 잠시 후 다시 시도해 주세요.'
+		'Codeforces와 연결이 불안정합니다. 잠시 후 다시 시도해 주세요.'
 	);
 	assert.equal(getSearchErrorMessage(undefined), '검색 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
 });

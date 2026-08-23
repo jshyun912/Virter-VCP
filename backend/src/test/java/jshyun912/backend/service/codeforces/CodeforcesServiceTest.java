@@ -9,7 +9,6 @@ import static org.mockito.BDDMockito.willReturn;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.spy;
 
-import jshyun912.backend.config.RestClientConfig;
 import jshyun912.backend.dto.codeforces.CodeforcesResponse;
 import jshyun912.backend.dto.codeforces.Contest;
 import jshyun912.backend.dto.codeforces.Submission;
@@ -46,9 +45,6 @@ class CodeforcesServiceTest {
     private Path divisionsDirectory;
 
     @Mock
-    private RestClientConfig restClientConfig;
-
-    @Mock
     private JsonMapper jsonMapper;
 
     @Mock
@@ -67,7 +63,7 @@ class CodeforcesServiceTest {
 
     @BeforeEach
     void setUp() {
-        codeforcesService = new CodeforcesService(restClientConfig, jsonMapper);
+        codeforcesService = new CodeforcesService(restClient, jsonMapper);
     }
 
     @Nested
@@ -80,7 +76,6 @@ class CodeforcesServiceTest {
 
         @BeforeEach
         void setUpRequest() {
-            given(restClientConfig.restClient()).willReturn(restClient);
             willReturn(requestHeadersUriSpec).given(restClient).get();
             willReturn(requestHeadersSpec).given(requestHeadersUriSpec).uri(USER_STATUS_URI, HANDLE);
             given(requestHeadersSpec.retrieve()).willReturn(responseSpec);
@@ -188,7 +183,6 @@ class CodeforcesServiceTest {
 
         @BeforeEach
         void setUpRequest() {
-            given(restClientConfig.restClient()).willReturn(restClient);
             willReturn(requestHeadersUriSpec).given(restClient).get();
             willReturn(requestHeadersSpec).given(requestHeadersUriSpec).uri(USER_STATUS_URI, HANDLE);
             willThrow(new RestClientException("connection failed")).given(requestHeadersSpec).retrieve();
@@ -291,7 +285,7 @@ class CodeforcesServiceTest {
             writeDivisionFile(realJsonMapper, "Div3.json", List.of(div3Contest));
             writeDivisionFile(realJsonMapper, "Div4.json", List.of(div4Contest));
             writeDivisionFile(realJsonMapper, "others.json", List.of(otherContest));
-            CodeforcesService service = new CodeforcesService(restClientConfig, realJsonMapper);
+            CodeforcesService service = new CodeforcesService(restClient, realJsonMapper);
             service.setDivisionsDirectory(divisionsDirectory);
 
             // when
@@ -312,7 +306,7 @@ class CodeforcesServiceTest {
         void thenThrowsLoadExceptionWhenDivisionFileIsMissing() {
             // given
             JsonMapper realJsonMapper = JsonMapper.builder().build();
-            CodeforcesService service = new CodeforcesService(restClientConfig, realJsonMapper);
+            CodeforcesService service = new CodeforcesService(restClient, realJsonMapper);
             service.setDivisionsDirectory(divisionsDirectory);
 
             // when
@@ -331,7 +325,7 @@ class CodeforcesServiceTest {
             // given
             Path divisionFile = divisionsDirectory.resolve("Div1.json");
             Files.writeString(divisionFile, "invalid json");
-            CodeforcesService service = new CodeforcesService(restClientConfig, JsonMapper.builder().build());
+            CodeforcesService service = new CodeforcesService(restClient, JsonMapper.builder().build());
             service.setDivisionsDirectory(divisionsDirectory);
 
             // when

@@ -33,6 +33,10 @@ export function buildSearchUrl(handles: readonly string[], difficultyMask: numbe
 	return `/api/search?${query}`;
 }
 
+export function getContestUrl(contestId: number): string {
+	return `https://codeforces.com/contest/${contestId}`;
+}
+
 export function getSearchErrorMessage(errorCode?: string): string {
 	switch (errorCode) {
 		case 'CODEFORCES_USER_NOT_FOUND':
@@ -40,7 +44,7 @@ export function getSearchErrorMessage(errorCode?: string): string {
 		case 'INVALID_SEARCH_REQUEST':
 			return '검색 조건을 확인해 주세요.';
 		case 'CODEFORCES_API_FAILED':
-			return 'Codeforces 서버와 통신하지 못했습니다. 잠시 후 다시 시도해 주세요.';
+			return 'Codeforces와 연결이 불안정합니다. 잠시 후 다시 시도해 주세요.';
 		default:
 			return '검색 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.';
 	}
