@@ -65,8 +65,7 @@
 		updateHandles(handles.filter((_, handleIndex) => handleIndex !== index));
 	}
 
-	function resetSearch() {
-		selectedDivisions = new Set(defaultDivisionValues);
+	function invalidateSearch() {
 		contests = [];
 		searchError = '';
 		hasSearched = false;
@@ -74,9 +73,18 @@
 		latestSearchId += 1;
 	}
 
+	function resetSearch() {
+		selectedDivisions = new Set(defaultDivisionValues);
+		invalidateSearch();
+	}
+
 	function updateHandles(nextHandles: string[]) {
 		handles = nextHandles;
-		if (handles.length === 0) resetSearch();
+		if (handles.length === 0) {
+			resetSearch();
+		} else {
+			invalidateSearch();
+		}
 	}
 
 	function toggleDivision(value: number) {
@@ -84,6 +92,7 @@
 		if (next.has(value)) next.delete(value);
 		else next.add(value);
 		selectedDivisions = next;
+		invalidateSearch();
 	}
 
 	async function searchContests() {
