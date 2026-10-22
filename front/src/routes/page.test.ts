@@ -23,6 +23,60 @@ async function addHandle(user: ReturnType<typeof userEvent.setup>, handle: strin
 	await user.type(screen.getByRole('textbox', { name: 'Codeforces 핸들' }), `${handle} `);
 }
 
+test.each([
+	['빈 입력', ''],
+	['공백 입력', ' '],
+	['중복 핸들 입력', 'tourist']
+])('%s 후 포커스를 이동해도 검색 결과를 유지한다', async (_, inputValue) => {
+	vi.stubGlobal('fetch', vi.fn().mockResolvedValue(successfulResponse()));
+	const user = userEvent.setup();
+	render(Page);
+
+	await addHandle(user, 'tourist');
+	await user.click(screen.getByRole('button', { name: '대회 찾기' }));
+	expect(await screen.findByRole('link', { name: /Codeforces Round 2037/ })).toBeInTheDocument();
+
+	await user.click(screen.getByRole('textbox', { name: 'Codeforces 핸들' }));
+	if (inputValue) await user.keyboard(inputValue);
+	await user.tab();
+
+	expect(screen.getByRole('link', { name: /Codeforces Round 2037/ })).toBeInTheDocument();
+	expect(screen.getByRole('textbox', { name: 'Codeforces 핸들' })).toHaveValue('');
+});
+
+test('핸들 변경 없이 포커스를 이동해도 진행 중인 검색과 응답을 유지한다', async () => {
+	let resolveResponse!: (response: Response) => void;
+	vi.stubGlobal('fetch', vi.fn().mockReturnValue(new Promise<Response>((resolve) => {
+		resolveResponse = resolve;
+	})));
+	const user = userEvent.setup();
+	render(Page);
+
+	await addHandle(user, 'tourist');
+	await user.click(screen.getByRole('button', { name: '대회 찾기' }));
+	await user.click(screen.getByRole('textbox', { name: 'Codeforces 핸들' }));
+	await user.tab();
+
+	expect(screen.getByRole('button', { name: '찾는 중…' })).toBeDisabled();
+	resolveResponse(successfulResponse());
+	expect(await screen.findByRole('link', { name: /Codeforces Round 2037/ })).toBeInTheDocument();
+	expect(screen.getByRole('button', { name: '대회 찾기' })).toBeEnabled();
+});
+
+test('새 핸들을 추가하면 이전 검색 결과를 초기화한다', async () => {
+	vi.stubGlobal('fetch', vi.fn().mockResolvedValue(successfulResponse()));
+	const user = userEvent.setup();
+	render(Page);
+
+	await addHandle(user, 'tourist');
+	await user.click(screen.getByRole('button', { name: '대회 찾기' }));
+	expect(await screen.findByRole('link', { name: /Codeforces Round 2037/ })).toBeInTheDocument();
+
+	await addHandle(user, 'Benq');
+
+	expect(screen.queryByRole('link', { name: /Codeforces Round 2037/ })).not.toBeInTheDocument();
+});
+
 test('삭제 버튼으로 마지막 핸들을 지우면 난이도와 이전 결과를 초기화한다', async () => {
 	vi.stubGlobal('fetch', vi.fn().mockResolvedValue(successfulResponse()));
 	const user = userEvent.setup();

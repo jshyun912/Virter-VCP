@@ -79,6 +79,9 @@
 	}
 
 	function updateHandles(nextHandles: string[]) {
+		if (nextHandles.length === handles.length && nextHandles.every((handle, index) => handle === handles[index])) {
+			return;
+		}
 		handles = nextHandles;
 		if (handles.length === 0) {
 			resetSearch();

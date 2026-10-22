@@ -9,15 +9,18 @@ import org.springframework.web.client.RestClientException;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.time.Duration;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Tag("integration")
 class RestClientConfigTest {
     @Test
     @DisplayName("Codeforces 요청이 read timeout을 초과하면 예외가 발생한다")
-    void readTimeoutStopsASlowCodeforcesRequest() throws IOException {
+    void readTimeoutStopsASlowCodeforcesRequest() throws IOException, InterruptedException {
         CountDownLatch requestStarted = new CountDownLatch(1);
         HttpServer server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
         server.createContext("/", exchange -> {
