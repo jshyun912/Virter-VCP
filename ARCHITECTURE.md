@@ -84,6 +84,8 @@ NPM과 프론트엔드는 외부 proxy 네트워크를 공유한다. 백엔드�
 
 공통 예외 처리기는 클라이언트에 상태와 오류 코드만 반환하고 상세 원인은 서버 로그에 기록한다.
 
+Spring MVC가 처리하는 HTTP 오류는 원래 상태와 응답 헤더를 유지한다. 존재하지 않는 경로는 404, 지원하지 않는 메서드는 405와 `Allow` 헤더를 반환하며, 이러한 4xx 응답의 오류 코드는 `HTTP_REQUEST_FAILED`다. 응답 본문은 기존 `status`, `message` 형식을 유지하고 예상하지 못한 서버 예외는 500과 `INTERNAL_SERVER_ERROR`로 처리한다.
+
 ## Div 데이터 초기화
 
 애플리케이션 시작 시 `CodeforcesService.initContestList()`이 다음 파일을 읽어 메모리 목록을 채운다.
@@ -100,7 +102,9 @@ NPM과 프론트엔드는 외부 proxy 네트워크를 공유한다. 백엔드�
 
 저장 경로는 `app.divisions-directory` 설정으로 변경할 수 있으며 기본값은 실행 디렉터리 기준 `data/divisions`다. 저장소는 이 디렉터리나 JSON 파일을 제공하지 않는다. 운영자가 일곱 파일을 모두 준비해야 하며, 파일 누락 또는 역직렬화 실패는 애플리케이션 시작 실패로 처리한다.
 
-Docker 배포에서는 호스트의 `data/divisions`를 `/app/data/divisions`에 읽기 전용으로 마운트한다.
+로컬에서 `backend/gradlew`의 `bootRun` 태스크를 사용하면 애플리케이션은 저장소 루트에서 실행되어 루트의 `data/divisions`를 읽는다. IDE에서 메인 클래스를 직접 실행할 때도 작업 디렉터리를 저장소 루트로 지정하거나 `APP_DIVISIONS_DIRECTORY`에 데이터 디렉터리의 절대 경로를 지정한다.
+
+Docker 배포에서는 호스트의 `data/divisions`를 `/app/data/divisions`에 읽기 전용으로 마운트하고 `APP_DIVISIONS_DIRECTORY=/app/data/divisions`를 지정한다.
 
 ## `dif` 비트마스크 계약
 

@@ -40,3 +40,7 @@ dependencies {
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+tasks.named('bootRun') {
+    workingDir = layout.projectDirectory.dir('..').asFile
+}
