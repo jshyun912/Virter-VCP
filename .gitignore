@@ -6,10 +6,3 @@
 /.codex/
 /.worktrees/
 /docs/superpowers/
-
-# Docker deployment files (temporarily local-only)
-/.env.example
-/compose.yaml
-/front/.dockerignore
-/front/Dockerfile
-/front/nginx.conf
