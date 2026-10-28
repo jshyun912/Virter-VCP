@@ -10,8 +10,6 @@
 # Docker deployment files (temporarily local-only)
 /.env.example
 /compose.yaml
-/backend/.dockerignore
-/backend/Dockerfile
 /front/.dockerignore
 /front/Dockerfile
 /front/nginx.conf
