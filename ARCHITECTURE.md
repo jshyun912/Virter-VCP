@@ -68,7 +68,7 @@ backend:8080 (Spring Boot)
 Codeforces API
 ```
 
-NPM과 프론트엔드는 외부 proxy 네트워크를 공유한다. 백엔드는 프론트엔드와의 app 네트워크에만 참가하고 호스트 포트를 공개하지 않는다. app 네트워크는 Codeforces API 호출을 위해 외부 통신을 허용한다.
+NPM, 프론트엔드, 백엔드는 같은 Compose에서 실행한다. NPM과 프론트엔드는 Compose가 생성하는 proxy 네트워크를 공유한다. NPM의 80·443 포트는 외부에 공개하고, 관리 화면용 81 포트는 호스트의 127.0.0.1에만 바인딩한다. 프론트엔드는 호스트 포트를 공개하지 않고 NPM을 통해 접근한다. NPM은 `proxy-manager/localhost.conf`를 HTTP 설정에 포함하여 `http://localhost`와 `http://127.0.0.1` 요청을 프론트엔드로 전달한다. 외부 도메인과 TLS 인증서는 NPM 관리 화면에서 설정한다. 백엔드는 프론트엔드와의 app 네트워크에만 참가하고 호스트 포트를 공개하지 않는다. app 네트워크는 Codeforces API 호출을 위해 외부 통신을 허용한다. NPM의 설정과 SQLite 데이터, TLS 인증서는 별도의 Docker 볼륨에 보관한다.
 
 ## 요청 검증과 오류 처리
 

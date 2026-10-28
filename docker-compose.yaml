@@ -1,0 +1,70 @@
+services:
+  proxy-manager:
+    image: jc21/nginx-proxy-manager:2.16.0
+    restart: unless-stopped
+    depends_on:
+      - front
+    environment:
+      TZ: Asia/Seoul
+    ports:
+      - "80:80"
+      - "443:443"
+      - "127.0.0.1:81:81"
+    volumes:
+      - proxy_manager_data:/data
+      - proxy_manager_letsencrypt:/etc/letsencrypt
+      - type: bind
+        source: ./proxy-manager/localhost.conf
+        target: /data/nginx/custom/http_top.conf
+        read_only: false
+        bind:
+          create_host_path: false
+    networks:
+      - proxy
+
+  backend:
+    image: backend:latest
+    build:
+      context: ./backend
+    restart: unless-stopped
+    environment:
+      APP_DIVISIONS_DIRECTORY: /app/data/divisions
+    volumes:
+      - type: bind
+        source: ./data/divisions
+        target: /app/data/divisions
+        read_only: true
+        bind:
+          create_host_path: false
+    networks:
+      - app
+
+  front:
+    image: front:latest
+    build:
+      context: ./front
+    restart: unless-stopped
+    depends_on:
+      - backend
+    volumes:
+      - type: bind
+        source: ./front/nginx.conf
+        target: /etc/nginx/conf.d/default.conf
+        read_only: true
+        bind:
+          create_host_path: false
+    networks:
+      app:
+      proxy:
+        aliases:
+          - virter-frontend
+
+networks:
+  app:
+    driver: bridge
+  proxy:
+    driver: bridge
+
+volumes:
+  proxy_manager_data:
+  proxy_manager_letsencrypt:
