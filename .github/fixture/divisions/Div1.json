@@ -1,0 +1,14 @@
+{
+  "status": "OK",
+  "result": [
+    {
+      "id": 2268,
+      "name": "Codeforces Round 1124 (Div. 1)",
+      "type": "CF",
+      "phase": "FINISHED",
+      "frozen": false,
+      "durationSeconds": 9000,
+      "startTimeSeconds": 1790433300
+    }
+  ]
+}

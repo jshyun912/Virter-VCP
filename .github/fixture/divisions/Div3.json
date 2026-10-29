@@ -1,0 +1,14 @@
+{
+  "status": "OK",
+  "result": [
+    {
+      "id": 2275,
+      "name": "Codeforces Round 1125 (Div. 3)",
+      "type": "ICPC",
+      "phase": "FINISHED",
+      "frozen": false,
+      "durationSeconds": 9000,
+      "startTimeSeconds": 1791384300
+    }
+  ]
+}
