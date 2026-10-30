@@ -1,5 +1,8 @@
 name: CI
 
+permissions:
+    contents: read
+
 on:
     pull_request:
         branches:
@@ -10,6 +13,8 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4
+              with:
+                  persist-credentials: false
             
             - name: set up JDK 25
               uses: actions/setup-java@v6
@@ -23,21 +28,16 @@ jobs:
             - name: Set up divisons file
               run: cp -r ./.github/fixture/divisions ./data/
 
-            - name: Build and test backend
+            - name: Test backend
               working-directory: ./backend
-              run: ./gradlew build test
-
-            - name: Upload backend build artifacts
-              uses: actions/upload-artifact@v7
-              with:
-                  name: backend-jar
-                  path: backend/build/libs/app.jar
-                  if-no-files-found: error
+              run: ./gradlew test
 
     front:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4
+              with:
+                  persist-credentials: false
             
             - name: set up Node.js 24
               uses: actions/setup-node@v7
@@ -46,54 +46,34 @@ jobs:
 
             - name: install dependencies
               working-directory: ./front
-              run: npm install
+              run: npm ci
 
             - name: test
               working-directory: ./front
               run: npm test
 
-            - name: build
+            - name: type check
               working-directory: ./front
-              run: npm run build
+              run: npm run check
 
-            - name: Upload frontend build artifacts
-              uses: actions/upload-artifact@v7
-              with:
-                  name: frontend-build
-                  path: front/build/
-                  if-no-files-found: error
-
-    docker:
+    docker-build:
         needs: [backend, front]
         runs-on: ubuntu-latest
 
         steps:
             - uses: actions/checkout@v4
-
-            - name: Download backend build artifacts
-              uses: actions/download-artifact@v8
               with:
-                  name: backend-jar
-                  path: ./backend/build/libs/
-
-            - name: Download frontend build artifacts
-              uses: actions/download-artifact@v8
-              with:
-                  name: frontend-build
-                  path: ./front/build/
+                  persist-credentials: false
 
             - name: Set up divisons file
               run: cp -r ./.github/fixture/divisions ./data/
 
-            - name: Build Docker backend image
-              run: docker build -t backend:latest ./backend
-
-            - name: Build Docker frontend image
-              run: docker build -t frontend:latest ./front
+            - name: Build Docker images
+              run: docker compose --parallel 2 build backend front
 
             - name: Start Docker Compose
               timeout-minutes: 10
-              run: docker compose up -d --build
+              run: docker compose up -d --no-build
 
             - name: Check Proxy Manager on port 81
               timeout-minutes: 3
