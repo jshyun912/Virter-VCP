@@ -1,7 +1,15 @@
-FROM eclipse-temurin:25.0.4.1_1-jre
-
+FROM eclipse-temurin:25-jdk AS build
 WORKDIR /app
 
-COPY build/libs/app.jar app.jar
+COPY gradlew build.gradle settings.gradle ./
+COPY gradle/ ./gradle/
+COPY src/ ./src/
+
+RUN ./gradlew bootJar --no-daemon
+
+FROM eclipse-temurin:25-jre
+WORKDIR /app
+
+COPY --from=build /app/build/libs/app.jar app.jar
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
