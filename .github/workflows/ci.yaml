@@ -21,7 +21,7 @@ jobs:
               uses: gradle/gradle-build-action@v3
 
             - name: Set up divisons file
-              run: cp ./.github/fixture/divisions/ ./data/divisions/
+              run: cp -r ./.github/fixture/divisions ./data/
 
             - name: Build and test backend
               working-directory: ./backend
@@ -60,7 +60,7 @@ jobs:
               uses: actions/upload-artifact@v7
               with:
                   name: frontend-build
-                  path: frontend/build/
+                  path: front/build/
                   if-no-files-found: error
 
     docker:
@@ -83,8 +83,8 @@ jobs:
                   path: ./front/build/
 
             - name: Set up divisons file
-              run: cp ./.github/fixture/divisions/ ./data/divisions/
-            
+              run: cp -r ./.github/fixture/divisions ./data/
+
             - name: Build Docker backend image
               run: docker build -t backend:latest ./backend
 
