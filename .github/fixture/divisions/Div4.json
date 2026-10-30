@@ -1,0 +1,14 @@
+{
+  "status": "OK",
+  "result": [
+    {
+      "id": 2167,
+      "name": "Codeforces Round 1062 (Div. 4)",
+      "type": "ICPC",
+      "phase": "FINISHED",
+      "frozen": false,
+      "durationSeconds": 8100,
+      "startTimeSeconds": 1761662100
+    }
+  ]
+}

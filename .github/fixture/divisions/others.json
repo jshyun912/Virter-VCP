@@ -1,0 +1,14 @@
+{
+  "status": "OK",
+  "result": [
+    {
+      "id": 2087,
+      "name": "Kotlin Heroes: Episode 12",
+      "type": "ICPC",
+      "phase": "FINISHED",
+      "frozen": false,
+      "durationSeconds": 9000,
+      "startTimeSeconds": 1744036500
+    }
+  ]
+}
