@@ -128,14 +128,14 @@ public class CodeforcesService {
                 "Codeforces API 응답이 올바르지 않습니다.");
     }
 
-public HttpStatusCode requireCodeforcesHealth() {
-    try { 
-        return restClient.get()
-                .uri("https://codeforces.com/api/system.status")
-                .exchange((_, response) -> response.getStatusCode());
-            }  catch (RestClientException exception) {
-                return HttpStatus.SERVICE_UNAVAILABLE;
-            }
+    public HttpStatusCode requireCodeforcesHealth() {
+        try {
+            return restClient.get()
+                    .uri("https://codeforces.com/api/system.status")
+                    .exchange((_, response) -> response.getStatusCode());
+        } catch (RestClientException exception) {
+            return HttpStatus.SERVICE_UNAVAILABLE;
+        }
     }
- 
+
 }

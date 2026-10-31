@@ -101,7 +101,7 @@ jobs:
                     --retry 30 --retry-delay 2 --retry-all-errors \
                     --retry-max-time 150 --max-time 5 \
                     http://localhost/api/health | \
-                    grep -q '"backend_status":200'
+                    grep -q '"backendStatus":200'
 
             - name: Show container logs on failure
               if: ${{ failure() }}
