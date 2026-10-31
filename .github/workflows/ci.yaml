@@ -97,11 +97,11 @@ jobs:
             - name: Check backend through API proxy
               timeout-minutes: 3
               run: |
-                  curl --noproxy '*' --fail --silent --show-error \
+                  curl --noproxy '*' --silent --show-error \
                     --retry 30 --retry-delay 2 --retry-all-errors \
                     --retry-max-time 150 --max-time 5 \
-                    --output /dev/null \
-                    http://localhost/api/actuator/health
+                    http://localhost/api/health | \
+                    grep -q '"backend_status":200'
 
             - name: Show container logs on failure
               if: ${{ failure() }}
