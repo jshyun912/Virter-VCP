@@ -1,6 +1,10 @@
 spring:
   application:
     name: backend
+management:
+  server:
+    port: 8081
+    address: 127.0.0.1
 app:
   codeforces:
     connect-timeout: 5s

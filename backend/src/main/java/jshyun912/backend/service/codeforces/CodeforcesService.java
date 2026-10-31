@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
@@ -126,4 +127,15 @@ public class CodeforcesService {
         throw new ApiException(HttpStatus.BAD_GATEWAY, ErrorMessage.CODEFORCES_API_FAILED,
                 "Codeforces API 응답이 올바르지 않습니다.");
     }
+
+    public HttpStatusCode requireCodeforcesHealth() {
+        try {
+            return restClient.get()
+                    .uri("https://codeforces.com/api/system.status")
+                    .exchange((_, response) -> response.getStatusCode());
+        } catch (RestClientException exception) {
+            return HttpStatus.SERVICE_UNAVAILABLE;
+        }
+    }
+
 }
