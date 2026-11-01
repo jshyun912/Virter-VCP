@@ -8,6 +8,7 @@ import jshyun912.backend.service.codeforces.CodeforcesService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
@@ -20,14 +21,16 @@ public class HealthService {
     private final RestClient restClient;
     private final CodeforcesService codeforcesService;
     private final Clock clock;
+    private final int managementPort;
     private final ReentrantLock refreshLock = new ReentrantLock();
 
     private volatile LocalDateTime lastChecked = LocalDateTime.MIN;
     private volatile HealthResponse cachedHealth = new HealthResponse(false, 503, 503);
 
     @Autowired
-    public HealthService(RestClient restClient, CodeforcesService codeforcesService) {
-        this(restClient, codeforcesService, Clock.systemUTC());
+    public HealthService(RestClient restClient, CodeforcesService codeforcesService,
+                         @Value("${management.server.port:8081}") int managementPort) {
+        this(restClient, codeforcesService, Clock.systemUTC(), managementPort);
     }
 
     public HealthResponse requireHealth() {
@@ -46,7 +49,9 @@ public class HealthService {
     }
 
     private boolean isCacheExpired() {
-        return LocalDateTime.now(clock).isAfter(lastChecked.plusMinutes(1));
+        LocalDateTime checkedAt = lastChecked;
+        LocalDateTime now = LocalDateTime.now(clock);
+        return now.isBefore(checkedAt) || now.isAfter(checkedAt.plusMinutes(1));
     }
 
     private void refreshHealth() {
@@ -63,7 +68,7 @@ public class HealthService {
     private HttpStatusCode requireBackendHealth() {
         try {
             return restClient.get()
-                    .uri("http://localhost:8081/actuator/health")
+                    .uri("http://localhost:{port}/actuator/health", managementPort)
                     .exchange((_, response) -> response.getStatusCode());
         } catch (RestClientException exception) {
             return HttpStatus.SERVICE_UNAVAILABLE;

@@ -50,7 +50,7 @@ class HealthServiceTest {
         backendServer = MockRestServiceServer.bindTo(builder).build();
         given(clock.getZone()).willReturn(ZoneOffset.UTC);
         given(clock.instant()).willReturn(INITIAL_TIME);
-        healthService = new HealthService(builder.build(), codeforcesService, clock);
+        healthService = new HealthService(builder.build(), codeforcesService, clock, 8081);
     }
 
     @Nested
@@ -91,6 +91,31 @@ class HealthServiceTest {
             assertEquals(new HealthResponse(true, 200, 200), atExpiry);
             backendServer.verify();
             then(codeforcesService).should().requireCodeforcesHealth();
+        }
+
+        @Test
+        @DisplayName("시계가 뒤로 조정되면 즉시 갱신하고 새 점검 시각을 기준으로 캐시한다")
+        void refreshesWhenClockMovesBackwards() {
+            // given
+            given(codeforcesService.requireCodeforcesHealth())
+                    .willReturn(HttpStatus.OK, HttpStatus.SERVICE_UNAVAILABLE);
+            backendServer.expect(requestTo(BACKEND_HEALTH_URI)).andRespond(withStatus(HttpStatus.OK));
+            backendServer.expect(requestTo(BACKEND_HEALTH_URI))
+                    .andRespond(withStatus(HttpStatus.SERVICE_UNAVAILABLE));
+            healthService.requireHealth();
+            Instant rolledBackTime = INITIAL_TIME.minusSeconds(3600);
+
+            // when
+            given(clock.instant()).willReturn(rolledBackTime);
+            HealthResponse refreshed = healthService.requireHealth();
+            given(clock.instant()).willReturn(rolledBackTime.plusSeconds(1));
+            HealthResponse cached = healthService.requireHealth();
+
+            // then
+            assertEquals(new HealthResponse(false, 503, 503), refreshed);
+            assertEquals(new HealthResponse(false, 503, 503), cached);
+            backendServer.verify();
+            then(codeforcesService).should(times(2)).requireCodeforcesHealth();
         }
 
         @Test
