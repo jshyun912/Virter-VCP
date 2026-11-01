@@ -1,6 +1,12 @@
 spring:
   application:
     name: backend
+management:
+  server:
+    # 내부 관리 포트는 8081로 고정한다. 다른 값으로 설정하면 애플리케이션 시작에 실패한다.
+    port: 8081
+    # 컨테이너 내부에서만 접근하도록 유지하고 Docker 호스트 포트로 공개하지 않는다.
+    address: 127.0.0.1
 app:
   codeforces:
     connect-timeout: 5s

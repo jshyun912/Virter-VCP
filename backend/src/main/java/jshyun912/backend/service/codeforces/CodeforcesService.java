@@ -126,4 +126,5 @@ public class CodeforcesService {
         throw new ApiException(HttpStatus.BAD_GATEWAY, ErrorMessage.CODEFORCES_API_FAILED,
                 "Codeforces API 응답이 올바르지 않습니다.");
     }
+
 }
