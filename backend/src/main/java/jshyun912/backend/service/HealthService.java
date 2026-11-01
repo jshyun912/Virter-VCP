@@ -4,7 +4,6 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.concurrent.locks.ReentrantLock;
 import jshyun912.backend.dto.health.HealthResponse;
-import jshyun912.backend.service.codeforces.CodeforcesService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,18 +18,20 @@ import org.springframework.web.client.RestClientException;
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class HealthService {
     private final RestClient restClient;
-    private final CodeforcesService codeforcesService;
     private final Clock clock;
     private final int managementPort;
     private final ReentrantLock refreshLock = new ReentrantLock();
 
     private volatile LocalDateTime lastChecked = LocalDateTime.MIN;
-    private volatile HealthResponse cachedHealth = new HealthResponse(false, 503, 503);
+    private volatile HealthResponse cachedHealth = new HealthResponse(false, 503);
 
     @Autowired
-    public HealthService(RestClient restClient, CodeforcesService codeforcesService,
-                         @Value("${management.server.port:8081}") int managementPort) {
-        this(restClient, codeforcesService, Clock.systemUTC(), managementPort);
+    public HealthService(RestClient restClient, @Value("${management.server.port:8081}") int managementPort) {
+        this(restClient, Clock.systemUTC(), managementPort);
+        if (managementPort != 8081) {
+            throw new IllegalArgumentException(
+                    "management.server.port는 8081로 고정되어 있습니다. 설정값: " + managementPort);
+        }
     }
 
     public HealthResponse requireHealth() {
@@ -55,11 +56,9 @@ public class HealthService {
     }
 
     private void refreshHealth() {
-        HttpStatusCode cfStatus = codeforcesService.requireCodeforcesHealth();
         HttpStatusCode backendStatus = requireBackendHealth();
         cachedHealth = HealthResponse.builder()
-                .isHealthy(cfStatus.is2xxSuccessful() && backendStatus.is2xxSuccessful())
-                .cfStatus(cfStatus.value())
+                .isHealthy(backendStatus.is2xxSuccessful())
                 .backendStatus(backendStatus.value())
                 .build();
         lastChecked = LocalDateTime.now(clock);
