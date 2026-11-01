@@ -9,7 +9,12 @@
 
 현재는 배포되고 있지 않습니다.
 
-저장소를 내려받은 다음 Docker가 설치되어 있는지 확인 후 저장소 위치에서
+### 준비 사항
+- Docker
+- 대회 정보를 담고 있는 JSON 파일  
+    - JSON 파일에 대해서는 [다음 문서](ARCHITECTURE.md#div-데이터-초기화)를 참고하세요.
+    - 간단히 동작 여부만 알고 싶으면 [샘플 데이터](/.github/fixture/divisions/)의 JSON 파일 7개를 저장소 루트의 `data/divisions` 디렉터리에 복사해서 사용하시면 됩니다.
+
 
 ```bash
 docker build -t backend:latest ./backend
@@ -18,11 +23,6 @@ docker compose up -d
 ```
 
 다음 명령을 수행 후  브라우저에서 [http://localhost](http://localhost) 로 접속하세요.
-
-### 주의 사항
-대회 정보를 담고 있는 JSON 파일이 필요합니다. JSON 파일에 대해서는 [다음 문서](ARCHITECTURE.md#div-데이터-초기화)를 참고하세요.
-
-간단히 동작 여부만 알고 싶으면 [샘플 데이터](/.github/fixture/divisions/)가 존재하니 date 디렉토리에 데이터 디렉토리를 복사해서 사용하시면 됩니다.
 
 ---
 
