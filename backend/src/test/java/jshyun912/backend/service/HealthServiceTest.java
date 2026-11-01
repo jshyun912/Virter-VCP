@@ -3,15 +3,14 @@ package jshyun912.backend.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withException;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 
-import java.io.IOException;
-import java.net.SocketTimeoutException;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -23,30 +22,40 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
-import org.springframework.test.web.client.MockRestServiceServer;
-import org.springframework.test.web.client.ResponseCreator;
-import org.springframework.web.client.RestClient;
+import org.mockito.stubbing.Answer;
+import org.springframework.boot.health.actuate.endpoint.HealthEndpoint;
+import org.springframework.boot.health.actuate.endpoint.HealthEndpointGroup;
+import org.springframework.boot.health.actuate.endpoint.HealthEndpointGroups;
+import org.springframework.boot.health.actuate.endpoint.StatusAggregator;
+import org.springframework.boot.health.contributor.Health;
+import org.springframework.boot.health.contributor.HealthIndicator;
+import org.springframework.boot.health.registry.DefaultHealthContributorRegistry;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("HealthService")
 class HealthServiceTest {
     private static final Instant INITIAL_TIME = Instant.parse("2026-11-01T00:00:00Z");
-    private static final String BACKEND_HEALTH_URI = "http://localhost:8081/actuator/health";
 
     @Mock
     private Clock clock;
 
-    private MockRestServiceServer backendServer;
+    @Mock
+    private HealthIndicator backendHealthIndicator;
+
     private HealthService healthService;
 
     @BeforeEach
     void setUp() {
-        RestClient.Builder builder = RestClient.builder();
-        backendServer = MockRestServiceServer.bindTo(builder).build();
+        var registry = new DefaultHealthContributorRegistry();
+        registry.registerContributor("backend", backendHealthIndicator);
+        HealthEndpointGroup group = mock(HealthEndpointGroup.class);
+        given(group.isMember("backend")).willReturn(true);
+        given(group.getStatusAggregator()).willReturn(StatusAggregator.getDefault());
+        HealthEndpoint healthEndpoint = new HealthEndpoint(
+                registry, null, HealthEndpointGroups.of(group, Map.of()), null);
         given(clock.getZone()).willReturn(ZoneOffset.UTC);
         given(clock.instant()).willReturn(INITIAL_TIME);
-        healthService = new HealthService(builder.build(), clock, 8081);
+        healthService = new HealthService(healthEndpoint, clock);
     }
 
     @Nested
@@ -56,21 +65,21 @@ class HealthServiceTest {
         @DisplayName("첫 요청에서 백엔드 상태를 점검한다")
         void checksBackendOnFirstRequest() {
             // given
-            backendServer.expect(requestTo(BACKEND_HEALTH_URI)).andRespond(withStatus(HttpStatus.OK));
+            given(backendHealthIndicator.health(true)).willReturn(Health.up().build());
 
             // when
             HealthResponse response = healthService.requireHealth();
 
             // then
             assertEquals(new HealthResponse(true, 200), response);
-            backendServer.verify();
+            then(backendHealthIndicator).should().health(true);
         }
 
         @Test
         @DisplayName("마지막 점검 후 정확히 1분까지 저장된 결과를 재사용한다")
         void reusesResultThroughOneMinute() {
             // given
-            backendServer.expect(requestTo(BACKEND_HEALTH_URI)).andRespond(withStatus(HttpStatus.OK));
+            given(backendHealthIndicator.health(true)).willReturn(Health.up().build());
             healthService.requireHealth();
 
             // when
@@ -82,16 +91,14 @@ class HealthServiceTest {
             // then
             assertEquals(new HealthResponse(true, 200), beforeExpiry);
             assertEquals(new HealthResponse(true, 200), atExpiry);
-            backendServer.verify();
+            then(backendHealthIndicator).should().health(true);
         }
 
         @Test
         @DisplayName("시계가 뒤로 조정되면 즉시 갱신하고 새 점검 시각을 기준으로 캐시한다")
         void refreshesWhenClockMovesBackwards() {
             // given
-            backendServer.expect(requestTo(BACKEND_HEALTH_URI)).andRespond(withStatus(HttpStatus.OK));
-            backendServer.expect(requestTo(BACKEND_HEALTH_URI))
-                    .andRespond(withStatus(HttpStatus.SERVICE_UNAVAILABLE));
+            given(backendHealthIndicator.health(true)).willReturn(Health.up().build(), Health.down().build());
             healthService.requireHealth();
             Instant rolledBackTime = INITIAL_TIME.minusSeconds(3600);
 
@@ -104,17 +111,15 @@ class HealthServiceTest {
             // then
             assertEquals(new HealthResponse(false, 503), refreshed);
             assertEquals(new HealthResponse(false, 503), cached);
-            backendServer.verify();
+            then(backendHealthIndicator).should(times(2)).health(true);
         }
 
         @Test
         @DisplayName("실패 결과를 캐시하고 만료 후 정상 복구를 반영한다")
         void refreshesAfterOneMinuteAndRecoversFromFailure() {
             // given
-            backendServer.expect(requestTo(BACKEND_HEALTH_URI)).andRespond(withStatus(HttpStatus.OK));
-            backendServer.expect(requestTo(BACKEND_HEALTH_URI))
-                    .andRespond(withStatus(HttpStatus.SERVICE_UNAVAILABLE));
-            backendServer.expect(requestTo(BACKEND_HEALTH_URI)).andRespond(withStatus(HttpStatus.OK));
+            given(backendHealthIndicator.health(true))
+                    .willReturn(Health.up().build(), Health.down().build(), Health.up().build());
             healthService.requireHealth();
 
             // when
@@ -129,15 +134,14 @@ class HealthServiceTest {
             assertEquals(new HealthResponse(false, 503), refreshed);
             assertEquals(new HealthResponse(false, 503), cachedFailure);
             assertEquals(new HealthResponse(true, 200), recovered);
-            backendServer.verify();
+            then(backendHealthIndicator).should(times(3)).health(true);
         }
 
         @Test
-        @DisplayName("백엔드 연결 타임아웃을 비정상 상태로 저장한다")
-        void cachesBackendConnectionFailures() {
+        @DisplayName("Actuator의 비정상 상태를 저장하고 재사용한다")
+        void cachesUnhealthyActuatorStatus() {
             // given
-            backendServer.expect(requestTo(BACKEND_HEALTH_URI))
-                    .andRespond(withException(new SocketTimeoutException("timed out")));
+            given(backendHealthIndicator.health(true)).willReturn(Health.down().build());
 
             // when
             HealthResponse response = healthService.requireHealth();
@@ -146,7 +150,7 @@ class HealthServiceTest {
             // then
             assertEquals(new HealthResponse(false, 503), response);
             assertEquals(response, cached);
-            backendServer.verify();
+            then(backendHealthIndicator).should().health(true);
         }
 
         @Test
@@ -155,9 +159,9 @@ class HealthServiceTest {
             // given
             CountDownLatch refreshStarted = new CountDownLatch(1);
             CountDownLatch allowRefresh = new CountDownLatch(1);
-            backendServer.expect(requestTo(BACKEND_HEALTH_URI)).andRespond(withStatus(HttpStatus.OK));
-            backendServer.expect(requestTo(BACKEND_HEALTH_URI))
-                    .andRespond(delayedResponse(HttpStatus.SERVICE_UNAVAILABLE, refreshStarted, allowRefresh));
+            given(backendHealthIndicator.health(true))
+                    .willReturn(Health.up().build())
+                    .willAnswer(delayedHealth(Health.down().build(), refreshStarted, allowRefresh));
             healthService.requireHealth();
             given(clock.instant()).willReturn(INITIAL_TIME.plusSeconds(61));
 
@@ -173,7 +177,7 @@ class HealthServiceTest {
                 // then
                 assertEquals(new HealthResponse(true, 200), cached);
                 assertEquals(new HealthResponse(false, 503), refreshed);
-                backendServer.verify();
+                then(backendHealthIndicator).should(times(2)).health(true);
             } finally {
                 allowRefresh.countDown();
                 executor.shutdownNow();
@@ -186,8 +190,8 @@ class HealthServiceTest {
             // given
             CountDownLatch refreshStarted = new CountDownLatch(1);
             CountDownLatch allowRefresh = new CountDownLatch(1);
-            backendServer.expect(requestTo(BACKEND_HEALTH_URI))
-                    .andRespond(delayedResponse(HttpStatus.OK, refreshStarted, allowRefresh));
+            given(backendHealthIndicator.health(true))
+                    .willAnswer(delayedHealth(Health.up().build(), refreshStarted, allowRefresh));
 
             // when
             var executor = Executors.newFixedThreadPool(2);
@@ -201,7 +205,7 @@ class HealthServiceTest {
                 // then
                 assertEquals(new HealthResponse(false, 503), initial);
                 assertEquals(new HealthResponse(true, 200), refreshed);
-                backendServer.verify();
+                then(backendHealthIndicator).should().health(true);
             } finally {
                 allowRefresh.countDown();
                 executor.shutdownNow();
@@ -209,16 +213,16 @@ class HealthServiceTest {
         }
     }
 
-    private ResponseCreator delayedResponse(HttpStatus status, CountDownLatch started, CountDownLatch released) {
-        return request -> {
+    private Answer<Health> delayedHealth(Health health, CountDownLatch started, CountDownLatch released) {
+        return invocation -> {
             started.countDown();
             try {
                 assertTrue(released.await(5, TimeUnit.SECONDS));
             } catch (InterruptedException exception) {
                 Thread.currentThread().interrupt();
-                throw new IOException(exception);
+                throw new IllegalStateException(exception);
             }
-            return withStatus(status).createResponse(request);
+            return health;
         };
     }
 }

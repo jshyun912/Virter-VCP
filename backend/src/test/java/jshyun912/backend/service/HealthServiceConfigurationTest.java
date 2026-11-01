@@ -4,45 +4,40 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 
 import jshyun912.backend.dto.health.HealthResponse;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.BeanCreationException;
+import org.springframework.boot.health.autoconfigure.actuate.endpoint.HealthEndpointAutoConfiguration;
+import org.springframework.boot.health.autoconfigure.registry.HealthContributorRegistryAutoConfiguration;
+import org.springframework.boot.health.contributor.Health;
+import org.springframework.boot.health.contributor.HealthIndicator;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.http.HttpStatus;
-import org.springframework.test.web.client.MockRestServiceServer;
-import org.springframework.web.client.RestClient;
 
 @DisplayName("HealthService 설정")
 class HealthServiceConfigurationTest {
-    @Test
-    @DisplayName("관리 포트가 8081이면 백엔드 상태를 조회한다")
-    void usesFixedManagementPort() {
+    @ParameterizedTest
+    @CsvSource({"UP, true, 200", "DOWN, false, 503", "OUT_OF_SERVICE, false, 503", "UNKNOWN, false, 503"})
+    @DisplayName("관리 포트가 8081이면 HTTP 클라이언트 없이 Actuator 상태를 반영한다")
+    void readsActuatorHealthWithoutHttpClient(String status, boolean healthy, int backendStatus) {
         // given
-        RestClient.Builder builder = RestClient.builder();
-        MockRestServiceServer backendServer = MockRestServiceServer.bindTo(builder).build();
-        backendServer.expect(requestTo("http://localhost:8081/actuator/health"))
-                .andRespond(withStatus(HttpStatus.OK));
-
         try (var context = new AnnotationConfigApplicationContext()) {
             TestPropertyValues.of("management.server.port=8081").applyTo(context);
-            context.registerBean(RestClient.class, builder::build);
-            context.register(HealthService.class);
+            context.registerBean("backendHealthIndicator", HealthIndicator.class,
+                    () -> () -> Health.status(status).build());
+            context.register(HealthContributorRegistryAutoConfiguration.class,
+                    HealthEndpointAutoConfiguration.class, HealthService.class);
             context.refresh();
 
             // when
             HealthResponse response = context.getBean(HealthService.class).requireHealth();
 
             // then
-            assertTrue(response.isHealthy());
-            assertEquals(200, response.backendStatus());
-            backendServer.verify();
+            assertEquals(new HealthResponse(healthy, backendStatus), response);
         }
     }
 
@@ -53,8 +48,8 @@ class HealthServiceConfigurationTest {
         // given
         try (var context = new AnnotationConfigApplicationContext()) {
             TestPropertyValues.of("management.server.port=" + managementPort).applyTo(context);
-            context.registerBean(RestClient.class, () -> RestClient.create());
-            context.register(HealthService.class);
+            context.register(HealthContributorRegistryAutoConfiguration.class,
+                    HealthEndpointAutoConfiguration.class, HealthService.class);
 
             // when
             BeanCreationException exception = assertThrows(BeanCreationException.class, context::refresh);

@@ -8,26 +8,23 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
+import org.springframework.boot.health.actuate.endpoint.HealthEndpoint;
+import org.springframework.boot.health.contributor.Status;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClient;
-import org.springframework.web.client.RestClientException;
 
 @Service
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class HealthService {
-    private final RestClient restClient;
+    private final HealthEndpoint healthEndpoint;
     private final Clock clock;
-    private final int managementPort;
     private final ReentrantLock refreshLock = new ReentrantLock();
 
     private volatile LocalDateTime lastChecked = LocalDateTime.MIN;
     private volatile HealthResponse cachedHealth = new HealthResponse(false, 503);
 
     @Autowired
-    public HealthService(RestClient restClient, @Value("${management.server.port:8081}") int managementPort) {
-        this(restClient, Clock.systemUTC(), managementPort);
+    public HealthService(HealthEndpoint healthEndpoint, @Value("${management.server.port:8081}") int managementPort) {
+        this(healthEndpoint, Clock.systemUTC());
         if (managementPort != 8081) {
             throw new IllegalArgumentException(
                     "management.server.port는 8081로 고정되어 있습니다. 설정값: " + managementPort);
@@ -56,21 +53,11 @@ public class HealthService {
     }
 
     private void refreshHealth() {
-        HttpStatusCode backendStatus = requireBackendHealth();
+        boolean healthy = Status.UP.equals(healthEndpoint.health().getStatus());
         cachedHealth = HealthResponse.builder()
-                .isHealthy(backendStatus.is2xxSuccessful())
-                .backendStatus(backendStatus.value())
+                .isHealthy(healthy)
+                .backendStatus(healthy ? 200 : 503)
                 .build();
         lastChecked = LocalDateTime.now(clock);
-    }
-
-    private HttpStatusCode requireBackendHealth() {
-        try {
-            return restClient.get()
-                    .uri("http://localhost:{port}/actuator/health", managementPort)
-                    .exchange((_, response) -> response.getStatusCode());
-        } catch (RestClientException exception) {
-            return HttpStatus.SERVICE_UNAVAILABLE;
-        }
     }
 }
