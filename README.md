@@ -10,10 +10,11 @@
 현재는 배포되고 있지 않습니다.
 
 ### 준비 사항
-- Docker
+- Docker (compose 플러그인 필요)
 - 대회 정보를 담고 있는 JSON 파일  
     - JSON 파일에 대해서는 [다음 문서](ARCHITECTURE.md#div-데이터-초기화)를 참고하세요.
     - 간단히 동작 여부만 알고 싶으면 [샘플 데이터](/.github/fixture/divisions/)의 JSON 파일 7개를 저장소 루트의 `data/divisions` 디렉터리에 복사해서 사용하시면 됩니다.
+    - 파일 갱신 시 docker compose up -d 과정이 다시 필요합니다.
 
 
 ```bash
