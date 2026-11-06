@@ -27,8 +27,15 @@ services:
     build:
       context: ./backend
     restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
     environment:
       APP_DIVISIONS_DIRECTORY: /app/data/divisions
+      SPRING_CONFIG_IMPORT: configtree:/run/secrets/
+    secrets:
+      - source: redis_password
+        target: spring.data.redis.password
     volumes:
       - type: bind
         source: ./data/divisions
@@ -59,6 +66,33 @@ services:
         aliases:
           - virter-frontend
 
+  redis:
+    image: redis:8.10.3-alpine
+    restart: unless-stopped
+    mem_limit: 128m
+    secrets:
+      - redis_password
+    command:
+      - /bin/sh
+      - -ec
+      - |
+        umask 077
+        password=$$(cat /run/secrets/redis_password)
+        case "$$password" in
+          ''|*[!0-9a-fA-F]*) echo "Redis secret must be a non-empty hexadecimal password." >&2; exit 1 ;;
+        esac
+        printf 'requirepass %s\n' "$$password" > /tmp/redis-auth.conf
+        chown redis:redis /tmp/redis-auth.conf
+        exec docker-entrypoint.sh redis-server /tmp/redis-auth.conf \
+          --maxmemory 64mb --maxmemory-policy noeviction --save '' --appendonly no
+    healthcheck:
+      test: ["CMD-SHELL", "REDISCLI_AUTH=\"$$(cat /run/secrets/redis_password)\" redis-cli ping | grep -qx PONG"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - app
+
 networks:
   app:
     driver: bridge
@@ -68,3 +102,7 @@ networks:
 volumes:
   proxy_manager_data:
   proxy_manager_letsencrypt:
+
+secrets:
+  redis_password:
+    file: ./redis_password.txt

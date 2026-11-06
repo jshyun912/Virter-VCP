@@ -42,14 +42,19 @@ class HealthServiceTest {
     @Mock
     private HealthIndicator backendHealthIndicator;
 
+    @Mock
+    private HealthIndicator redisHealthIndicator;
+
+    private DefaultHealthContributorRegistry registry;
     private HealthService healthService;
 
     @BeforeEach
     void setUp() {
-        var registry = new DefaultHealthContributorRegistry();
+        registry = new DefaultHealthContributorRegistry();
         registry.registerContributor("backend", backendHealthIndicator);
+        registry.registerContributor("redis", redisHealthIndicator);
         HealthEndpointGroup group = mock(HealthEndpointGroup.class);
-        given(group.isMember("backend")).willReturn(true);
+        given(group.isMember(org.mockito.ArgumentMatchers.anyString())).willReturn(true);
         given(group.getStatusAggregator()).willReturn(StatusAggregator.getDefault());
         HealthEndpoint healthEndpoint = new HealthEndpoint(
                 registry, null, HealthEndpointGroups.of(group, Map.of()), null);
@@ -58,9 +63,29 @@ class HealthServiceTest {
         healthService = new HealthService(healthEndpoint, clock);
     }
 
+    @Test
+    @DisplayName("Redis 점검 항목이 없으면 미확인 상태로 실패 처리한다")
+    void reportsMissingRedisAsUnavailable() {
+        // given
+        registry.unregisterContributor("redis");
+        given(backendHealthIndicator.health(true)).willReturn(Health.up().build());
+
+        // when
+        HealthResponse response = healthService.requireHealth();
+
+        // then
+        assertEquals(new HealthResponse(false, 200, 503), response);
+    }
+
+
     @Nested
     @DisplayName("requireHealth를 호출하면")
     class RequireHealth {
+        @BeforeEach
+        void setUpHealthyRedis() {
+            given(redisHealthIndicator.health(true)).willReturn(Health.up().build());
+        }
+
         @Test
         @DisplayName("첫 요청에서 백엔드 상태를 점검한다")
         void checksBackendOnFirstRequest() {
@@ -71,8 +96,28 @@ class HealthServiceTest {
             HealthResponse response = healthService.requireHealth();
 
             // then
-            assertEquals(new HealthResponse(true, 200), response);
+            assertEquals(new HealthResponse(true, 200, 200), response);
             then(backendHealthIndicator).should().health(true);
+        }
+
+        @Test
+        @DisplayName("Redis 장애를 별도 표시하고 전체 상태를 실패로 처리하며 만료 후 복구한다")
+        void reportsRedisFailureAndRecovery() {
+            // given
+            given(backendHealthIndicator.health(true)).willReturn(Health.up().build());
+            given(redisHealthIndicator.health(true)).willReturn(Health.down().build(), Health.up().build());
+
+            // when
+            HealthResponse failed = healthService.requireHealth();
+            HealthResponse cached = healthService.requireHealth();
+            given(clock.instant()).willReturn(INITIAL_TIME.plusSeconds(61));
+            HealthResponse recovered = healthService.requireHealth();
+
+            // then
+            assertEquals(new HealthResponse(false, 503, 503), failed);
+            assertEquals(failed, cached);
+            assertEquals(new HealthResponse(true, 200, 200), recovered);
+            then(redisHealthIndicator).should(times(2)).health(true);
         }
 
         @Test
@@ -89,8 +134,8 @@ class HealthServiceTest {
             HealthResponse atExpiry = healthService.requireHealth();
 
             // then
-            assertEquals(new HealthResponse(true, 200), beforeExpiry);
-            assertEquals(new HealthResponse(true, 200), atExpiry);
+            assertEquals(new HealthResponse(true, 200, 200), beforeExpiry);
+            assertEquals(new HealthResponse(true, 200, 200), atExpiry);
             then(backendHealthIndicator).should().health(true);
         }
 
@@ -109,8 +154,8 @@ class HealthServiceTest {
             HealthResponse cached = healthService.requireHealth();
 
             // then
-            assertEquals(new HealthResponse(false, 503), refreshed);
-            assertEquals(new HealthResponse(false, 503), cached);
+            assertEquals(new HealthResponse(false, 503, 200), refreshed);
+            assertEquals(new HealthResponse(false, 503, 200), cached);
             then(backendHealthIndicator).should(times(2)).health(true);
         }
 
@@ -131,9 +176,9 @@ class HealthServiceTest {
             HealthResponse recovered = healthService.requireHealth();
 
             // then
-            assertEquals(new HealthResponse(false, 503), refreshed);
-            assertEquals(new HealthResponse(false, 503), cachedFailure);
-            assertEquals(new HealthResponse(true, 200), recovered);
+            assertEquals(new HealthResponse(false, 503, 200), refreshed);
+            assertEquals(new HealthResponse(false, 503, 200), cachedFailure);
+            assertEquals(new HealthResponse(true, 200, 200), recovered);
             then(backendHealthIndicator).should(times(3)).health(true);
         }
 
@@ -148,7 +193,7 @@ class HealthServiceTest {
             HealthResponse cached = healthService.requireHealth();
 
             // then
-            assertEquals(new HealthResponse(false, 503), response);
+            assertEquals(new HealthResponse(false, 503, 200), response);
             assertEquals(response, cached);
             then(backendHealthIndicator).should().health(true);
         }
@@ -175,8 +220,8 @@ class HealthServiceTest {
                 HealthResponse refreshed = refreshing.get(2, TimeUnit.SECONDS);
 
                 // then
-                assertEquals(new HealthResponse(true, 200), cached);
-                assertEquals(new HealthResponse(false, 503), refreshed);
+                assertEquals(new HealthResponse(true, 200, 200), cached);
+                assertEquals(new HealthResponse(false, 503, 200), refreshed);
                 then(backendHealthIndicator).should(times(2)).health(true);
             } finally {
                 allowRefresh.countDown();
@@ -203,8 +248,8 @@ class HealthServiceTest {
                 HealthResponse refreshed = refreshing.get(2, TimeUnit.SECONDS);
 
                 // then
-                assertEquals(new HealthResponse(false, 503), initial);
-                assertEquals(new HealthResponse(true, 200), refreshed);
+                assertEquals(new HealthResponse(false, 503, 503), initial);
+                assertEquals(new HealthResponse(true, 200, 200), refreshed);
                 then(backendHealthIndicator).should().health(true);
             } finally {
                 allowRefresh.countDown();
