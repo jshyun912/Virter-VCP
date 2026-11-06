@@ -52,13 +52,15 @@ npm run build
 
 헬스 테스트는 HTTP 상태와 JSON 응답, Actuator 상태 변환, 1분 캐시 경계와 복구, 동시 요청 처리, 관리 포트 8081 검증을 확인한다. `HealthService` 테스트는 실제 `HealthEndpoint`와 제어 가능한 점검 항목을 사용하며 Codeforces API를 호출하지 않는다.
 
+Redis 통합 테스트는 Testcontainers로 실제 Redis를 실행하므로 Docker 접근 권한이 필요하다. 2시간 TTL, 빈 기록 표식, 동시 저장과 락의 소유권·만료·대기 한도를 검증한다. Codeforces 서비스 테스트는 Redis 장애 우회, 메모리 부족·락 대기 실패의 503 변환, 캐시 저장 실패 시 조회 결과 보존을 확인한다. 실행 방법은 [백엔드 작업 가이드](backend/README.md#redis-통합-테스트)를 따른다.
+
 ## GitHub Actions CI
 
 [ci.yaml](.github/workflows/ci.yaml)은 `main`을 대상으로 하는 Pull Request에서 실행된다. `dev`에 대한 푸시만으로는 실행되지 않는다.
 
 1. `backend`와 `front` 작업이 병렬 실행된다. 백엔드는 Java 25에서 `./gradlew test`를, 프론트엔드는 Node.js 24에서 `npm ci`, `npm test`, `npm run check`를 실행한다.
-2. 두 작업이 성공하면 `docker-build`가 백엔드와 프론트엔드 이미지를 최대 두 개 병렬로 빌드한다. 실제 애플리케이션 빌드는 각 Dockerfile 안에서 수행한다.
-3. Compose를 시작하고 Proxy Manager의 81번 포트, 프론트엔드의 80번 포트와 페이지의 `Virter` 문자열, `/api/health` 응답의 `backendStatus: 200`을 확인한다.
+2. 두 작업이 성공하면 `docker-build`가 임시 Redis 비밀번호 파일을 생성하고 백엔드와 프론트엔드 이미지를 최대 두 개 병렬로 빌드한다. 실제 애플리케이션 빌드는 각 Dockerfile 안에서 수행한다. 운영 비밀번호는 CI에서 사용하지 않는다.
+3. Compose를 시작하고 Redis의 미인증 요청 차단·인증된 PING, Proxy Manager의 81번 포트, 프론트엔드의 80번 포트와 페이지의 `Virter` 문자열, `/api/health`의 HTTP 200 및 `backendStatus: 200`, `redisStatus: 200`을 확인한다. 통합 상태에 Redis가 포함되므로 Redis가 비정상이면 `backendStatus`도 503이다.
 4. 실패 시 컨테이너 상태와 로그를 출력한다. 성공·실패와 관계없이 테스트용 컨테이너와 볼륨을 제거한다.
 
 현재 워크플로는 테스트와 Compose 실행 검증을 수행하며, 레지스트리로 이미지를 푸시하거나 운영 서버에 배포하지 않는다.

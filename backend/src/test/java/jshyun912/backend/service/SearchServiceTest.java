@@ -37,12 +37,15 @@ class SearchServiceTest {
     @Mock
     private JsonMapper jsonMapper;
 
+    @Mock
+    private RedisService redisService;
+
     private CodeforcesService codeforcesService;
     private SearchService searchService;
 
     @BeforeEach
     void setUp() {
-        codeforcesService = spy(new CodeforcesService(restClient, jsonMapper));
+        codeforcesService = spy(new CodeforcesService(restClient, jsonMapper, redisService));
         searchService = new SearchService(codeforcesService);
     }
 

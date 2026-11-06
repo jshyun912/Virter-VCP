@@ -6,12 +6,17 @@ import jshyun912.backend.dto.codeforces.Contest;
 import jshyun912.backend.dto.codeforces.Submission;
 import jshyun912.backend.exception.ApiException;
 import jshyun912.backend.exception.ErrorMessage;
+import jshyun912.backend.service.RedisService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.dao.CannotAcquireLockException;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataAccessResourceFailureException;
+import org.springframework.dao.QueryTimeoutException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -21,11 +26,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.concurrent.Semaphore;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.json.JsonMapper;
@@ -35,9 +42,12 @@ import tools.jackson.databind.json.JsonMapper;
 @RequiredArgsConstructor
 public class CodeforcesService {
     private static final Path DEFAULT_DIVISIONS_DIRECTORY = Path.of("data", "divisions");
+    private static final Duration LOCK_WAIT = Duration.ofSeconds(40);
 
     private final RestClient restClient;
     private final JsonMapper jsonMapper;
+    private final RedisService redisService;
+    private final Semaphore fallbackPermit = new Semaphore(1);
     @Value("${app.divisions-directory:data/divisions}")
     @Setter(AccessLevel.PACKAGE)
     private Path divisionsDirectory = DEFAULT_DIVISIONS_DIRECTORY;
@@ -67,14 +77,91 @@ public class CodeforcesService {
     }
 
     public Set<Integer> getParticipateContest(String handle) {
-        Set<Integer> contests = new HashSet<>();
-
-        List<Submission> submissions = getSubmissions(handle).result();
-
-        for (Submission submission : submissions) {
-            contests.add(submission.contestId());
+        try {
+            return getCachedOrLoadContests(handle);
+        } catch (DataAccessResourceFailureException | QueryTimeoutException exception) {
+            log.warn("Redis에 연결할 수 없어 핸들 {}을 직접 조회합니다.", handle, exception);
+            return getContestsWithoutCache(handle);
+        } catch (DataAccessException exception) {
+            throw new ApiException(HttpStatus.SERVICE_UNAVAILABLE,
+                    ErrorMessage.SEARCH_TEMPORARILY_UNAVAILABLE,
+                    "캐시를 사용할 수 없어 검색을 처리하지 못했습니다. 잠시 후 다시 시도해주세요.", exception);
         }
+    }
 
+    private Set<Integer> getCachedOrLoadContests(String handle) {
+        long startedAt = System.nanoTime();
+        do {
+            Set<Integer> cached = redisService.get(handle);
+            if (!cached.isEmpty()) {
+                return withoutCacheMarker(cached);
+            }
+
+            String lockToken = redisService.tryLock(handle);
+            if (lockToken != null) {
+                return getContestsWithLock(handle, lockToken);
+            }
+
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException exception) {
+                Thread.currentThread().interrupt();
+                throw new CannotAcquireLockException("캐시 락 대기가 중단되었습니다.", exception);
+            }
+        } while (System.nanoTime() - startedAt < LOCK_WAIT.toNanos());
+
+        throw new CannotAcquireLockException("캐시 락 대기 시간을 초과했습니다.");
+    }
+
+    private Set<Integer> getContestsWithLock(String handle, String lockToken) {
+        try {
+            Set<Integer> cached = redisService.get(handle);
+            if (!cached.isEmpty()) {
+                return withoutCacheMarker(cached);
+            }
+
+            Set<Integer> contests = loadParticipateContests(handle);
+            try {
+                redisService.add(handle, contests);
+            } catch (DataAccessException exception) {
+                log.warn("핸들 {}의 제출 기록을 캐시에 저장하지 못했습니다.", handle, exception);
+            }
+            return contests;
+        } finally {
+            try {
+                redisService.unlock(handle, lockToken);
+            } catch (DataAccessException exception) {
+                // 해제에 실패한 락은 TTL로 만료시키고 기존 결과나 예외를 보존한다.
+                log.warn("핸들 {}의 캐시 락을 해제하지 못했습니다.", handle, exception);
+            }
+        }
+    }
+
+    private Set<Integer> getContestsWithoutCache(String handle) {
+        if (!fallbackPermit.tryAcquire()) {
+            throw new ApiException(HttpStatus.SERVICE_UNAVAILABLE,
+                    ErrorMessage.SEARCH_TEMPORARILY_UNAVAILABLE, "현재 직접 조회가 진행 중입니다. 잠시 후 다시 시도해주세요.");
+        }
+        try {
+            return loadParticipateContests(handle);
+        } finally {
+            fallbackPermit.release();
+        }
+    }
+
+    private Set<Integer> loadParticipateContests(String handle) {
+        Set<Integer> contests = new HashSet<>();
+        for (Submission submission : getSubmissions(handle).result()) {
+            if (submission.contestId() != null) {
+                contests.add(submission.contestId());
+            }
+        }
+        return contests;
+    }
+
+    private Set<Integer> withoutCacheMarker(Set<Integer> cached) {
+        Set<Integer> contests = new HashSet<>(cached);
+        contests.remove(0);
         return contests;
     }
 
@@ -87,7 +174,6 @@ public class CodeforcesService {
         div3ContestList.addAll(readContestList("Div3.json"));
         div4ContestList.addAll(readContestList("Div4.json"));
         otherContestList.addAll(readContestList("others.json"));
-
     }
 
     private List<Contest> readContestList(String fileName) {

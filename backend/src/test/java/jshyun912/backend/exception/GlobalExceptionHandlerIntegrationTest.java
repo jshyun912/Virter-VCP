@@ -85,6 +85,24 @@ class GlobalExceptionHandlerIntegrationTest {
     }
 
     @Test
+    @DisplayName("검색을 일시적으로 처리할 수 없으면 상세 내용 없이 503을 반환한다")
+    void preservesSearchTemporarilyUnavailable() throws Exception {
+        // given
+        given(searchService.search(new SearchRequest(List.of("alice"), 4)))
+                .willThrow(new ApiException(HttpStatus.SERVICE_UNAVAILABLE,
+                        ErrorMessage.SEARCH_TEMPORARILY_UNAVAILABLE, "Redis 상세 오류"));
+
+        // when / then
+        mockMvc.perform(get("/search").param("handle", "alice").param("dif", "4"))
+                .andExpect(status().isServiceUnavailable())
+                .andExpect(jsonPath("$.detail").doesNotExist())
+                .andExpect(jsonPath("$.trace").doesNotExist())
+                .andExpect(content().json("""
+                        {"status":"FAILED","message":"SEARCH_TEMPORARILY_UNAVAILABLE"}
+                        """));
+    }
+
+    @Test
     @DisplayName("예상하지 못한 예외는 내부 상세 내용을 제외하고 500을 반환한다")
     void returnsInternalServerErrorForUnexpectedException() throws Exception {
         // given

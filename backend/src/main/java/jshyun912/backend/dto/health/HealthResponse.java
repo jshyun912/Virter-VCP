@@ -5,6 +5,7 @@ import lombok.Builder;
 @Builder
 public record HealthResponse(
         boolean isHealthy,
-        int backendStatus
+        int backendStatus,
+        int redisStatus
 ) {
 }

@@ -10,6 +10,7 @@
 | --- | --- | --- |
 | Frontend | SvelteKit / Nginx | 사용자 입력, 추천 결과 표시, 백엔드 내부 프록시 |
 | Backend | Spring Boot 4 / Java 25 | 검색 API, 헬스 API와 Codeforces 연동 |
+| Cache | Redis 8.10.3 | 핸들별 참여 대회 ID의 2시간 캐시와 분산 락 |
 | 외부 API | Codeforces API | 사용자 제출 이력 조회 |
 | 운영 입력 파일 | `data/divisions/*.json` | 운영자가 관리하는 Div별 완료 대회 목록 |
 
@@ -40,7 +41,7 @@ SearchController
         |
         v
 SearchService
-  1. 각 handle의 user.status를 조회
+  1. 각 handle의 참여 대회 ID 캐시를 조회하고, 없으면 락을 획득해 user.status를 조회
   2. 참여한 contest ID를 합침
   3. dif가 선택한 Div 목록에서 참여 이력을 제외
   4. 후보를 섞어 최대 3개 반환
@@ -49,7 +50,7 @@ SearchService
 SearchResponse { contestList }
 ```
 
-`CodeforcesService`는 `RestClient`로 `user.status`를 호출한다. 대회 목록은 Codeforces에서 자동 갱신하지 않고 운영자가 제공한 JSON만 읽는다.
+`CodeforcesService`는 `RedisService`로 캐시를 읽고, 캐시가 없을 때 `RestClient`로 `user.status`를 호출한다. 대회 목록은 Codeforces에서 자동 갱신하지 않고 운영자가 제공한 JSON만 읽는다.
 
 ### 검색 API
 
@@ -75,7 +76,7 @@ curl 'http://localhost/api/search?handle=tourist&handle=Benq&dif=63'
 
 후보가 세 개보다 적으면 있는 만큼 반환하고, 후보가 없으면 `{"contestList":[]}`를 반환한다. `durationSeconds`의 단위는 초다. 추천은 입력한 사용자 중 누구에게도 제출 이력이 없는 대회에서 무작위로 선택하므로, 같은 조건으로 다시 검색해도 결과가 달라질 수 있다.
 
-각 핸들의 제출 이력은 순서대로 조회한다. 검색용 캐시는 없으며 같은 닉네임을 다시 검색하면 Codeforces API를 다시 호출한다. 연결·읽기 타임아웃은 `backend/src/main/resources/application.yaml`의 다음 설정으로 조절한다. 이 값은 핸들별 HTTP 호출에 적용되며 전체 검색 요청의 제한 시간은 아니다.
+각 핸들의 참여 대회 ID는 순서대로 조회한다. Redis에 유효한 캐시가 있으면 Codeforces를 호출하지 않는다. 연결·읽기 타임아웃은 `backend/src/main/resources/application.yaml`의 다음 설정으로 조절한다. 이 값은 핸들별 HTTP 호출에 적용되며 전체 검색 요청의 제한 시간은 아니다.
 
 ```yaml
 app:
@@ -83,6 +84,22 @@ app:
     connect-timeout: 5s
     read-timeout: 30s
 ```
+
+### Redis 캐시와 장애 처리
+
+Redis에는 제출 기록 원문 대신 참여한 대회 ID의 집합을 핸들별로 저장한다. 최초 저장 시점부터 2시간 동안 유지하며, 재검색해도 값이나 TTL을 갱신하지 않는다. 모든 집합에 대회 ID `0`을 표식으로 추가해 제출 기록이 없는 사용자도 캐시하고, 검색에 사용할 때 표식을 제거한다. TTL이 없는 기록은 신뢰하지 않고 캐시 미스로 처리한다. TTL 확인과 읽기, TTL을 포함한 최초 저장은 Lua 스크립트로 원자적으로 수행한다.
+
+[Codeforces Submission 명세](https://codeforces.com/apiHelp/objects#Submission)에서 `contestId`는 생략될 수 있다. ID가 없는 제출은 참여 대회 집합과 캐시 저장 대상에서 제외한다.
+
+캐시가 없으면 `lock:codeforces:{handle}` 키로 락을 획득하고 캐시를 다시 확인한 뒤 조회한다. 락의 유효 기간은 60초이며 대기 한도는 40초다. 서로 다른 핸들은 별도로 처리하며, 락 해제 시 소유 토큰을 검사해 이전 요청이 새 소유자의 락을 지우지 않도록 한다.
+
+`RedisService.tryLock()`은 획득을 한 번 시도하고 실패하면 `null`을 반환한다. `CodeforcesService`는 100ms 간격으로 캐시 확인과 락 획득을 재시도한다. 대기 중 캐시가 채워지면 락 해제를 기다리지 않고 결과를 반환하며, 다른 요청이 보유한 락은 해제하지 않는다.
+
+Codeforces의 연결·읽기 타임아웃은 각각 양수이고 합계가 40초 이하여야 한다. 60초 락에서 Redis 명령과 응답 처리를 위해 20초의 여유를 남기며, 이 범위를 벗어나는 설정은 시작 시 거부한다. 이는 HTTP 설정의 상한이며 긴 JVM 정지나 후처리 전체의 실행시간을 보장하지는 않는다. 락의 자동 연장은 사용하지 않는다.
+
+Redis 연결 실패나 명령 타임아웃이 발생하면 백엔드 인스턴스당 동시에 한 요청만 Codeforces를 직접 조회하고, 초과 요청은 HTTP 503과 `SEARCH_TEMPORARILY_UNAVAILABLE`로 응답한다. 락 대기 실패나 메모리 부족 등 그 밖의 Redis 명령 실패도 같은 503으로 응답하며 직접 조회를 추가하지 않는다. 이미 Codeforces에서 조회한 뒤 캐시 저장만 실패했다면 재조회하지 않고 가져온 결과를 반환한다. 락 해제 실패는 원래 결과나 예외를 보존하고 락의 TTL 만료에 맡긴다.
+
+Redis 데이터 메모리는 64MiB, 컨테이너 전체는 128MiB로 제한한다. `noeviction`으로 만료 전 캐시와 락을 보호하며, 한도에 도달하면 새 쓰기를 거부한다. 새 RDB 스냅샷과 AOF 저장은 비활성화한다. 비밀번호는 Git에서 제외한 루트 `redis_password.txt`를 Compose secret으로 전달하며, 백엔드는 Spring `configtree`로 읽는다. 준비 방법은 [백엔드 작업 가이드](backend/README.md#docker-redis-설정)를 따른다.
 
 ## 배포 요청 흐름
 
@@ -97,12 +114,17 @@ virter-frontend:80 (정적 SvelteKit / Nginx)
    |  /api/*
    v
 backend:8080 (Spring Boot)
+   |  캐시 조회 / 락
+   +--------------------> redis:6379 (인증 필요, 호스트 포트 미공개)
+   |  캐시 미스 또는 제한된 장애 우회
    |
    v
 Codeforces API
 ```
 
 NPM, 프론트엔드, 백엔드는 같은 Compose에서 실행한다. NPM과 프론트엔드는 Compose가 생성하는 proxy 네트워크를 공유한다. NPM의 80·443 포트는 외부에 공개하고, 관리 화면용 81 포트는 호스트의 127.0.0.1에만 바인딩한다. 프론트엔드는 호스트 포트를 공개하지 않고 NPM을 통해 접근한다. NPM은 `proxy-manager/localhost.conf`를 HTTP 설정에 포함하여 `http://localhost`와 `http://127.0.0.1` 요청을 프론트엔드로 전달한다. 외부 도메인과 TLS 인증서는 NPM 관리 화면에서 설정한다. 백엔드는 프론트엔드와의 app 네트워크에만 참가하고 호스트 포트를 공개하지 않는다. app 네트워크는 Codeforces API 호출을 위해 외부 통신을 허용한다. NPM의 설정과 SQLite 데이터, TLS 인증서는 별도의 Docker 볼륨에 보관한다.
+
+Redis도 같은 Compose의 app 네트워크에 참가하며 6379를 호스트에 공개하지 않는다. 백엔드는 Redis의 인증된 헬스체크가 성공한 뒤 시작한다.
 
 ### 이미지 빌드와 데이터
 
@@ -122,11 +144,12 @@ curl -i http://localhost/api/health
 
 | 점검 결과 | HTTP 상태 | 응답 본문 |
 | --- | ---: | --- |
-| Actuator의 통합 상태가 `UP` | 200 | `{"isHealthy":true,"backendStatus":200}` |
-| `DOWN`, `OUT_OF_SERVICE`, `UNKNOWN` 등 `UP` 이외의 상태 | 503 | `{"isHealthy":false,"backendStatus":503}` |
-| 최초 점검이 진행 중인 동안 들어온 다른 요청 | 503 | `{"isHealthy":false,"backendStatus":503}` |
+| 통합 상태와 모든 구성 요소가 `UP`이며 Redis도 `UP` | 200 | `{"isHealthy":true,"backendStatus":200,"redisStatus":200}` |
+| Redis 연결·인증 실패 등 Redis 상태가 `UP` 이외 | 503 | `{"isHealthy":false,"backendStatus":503,"redisStatus":503}` |
+| Redis는 `UP`이지만 다른 구성 요소가 비정상 | 503 | `{"isHealthy":false,"backendStatus":503,"redisStatus":200}` |
+| 최초 점검이 진행 중인 동안 들어온 다른 요청 | 503 | `{"isHealthy":false,"backendStatus":503,"redisStatus":503}` |
 
-`backendStatus`는 Actuator 상태를 위 규칙으로 변환한 값이다. `HealthService`는 주입받은 `HealthEndpoint.health()`를 직접 호출한다. 자기 서버에 HTTP 요청을 보내지 않으며 Codeforces 상태도 조회하지 않는다. Actuator의 상세 점검 내용은 요약 응답에 포함하지 않는다. 이 API가 정상이어도 Codeforces 검색 요청의 성공까지 보장하지는 않는다.
+`backendStatus`는 Redis를 포함한 Actuator 통합 상태와 모든 최상위 구성 요소가 `UP`일 때 200, 그 밖에는 503이다. `redisStatus`는 Redis 점검 항목이 `UP`이면 200이고 비정상이거나 항목이 없으면 503이다. 두 값이 모두 200번대일 때만 전체 정상이다. `HealthService`는 주입받은 `HealthEndpoint.health()`를 직접 호출한다. 자기 서버에 HTTP 요청을 보내지 않으며 Codeforces 상태도 조회하지 않는다. Actuator의 상세 점검 내용은 요약 응답에 포함하지 않는다. Redis 점검은 연결·인증 상태를 확인하므로, 정상이어도 메모리 부족으로 새 캐시 저장이 거부되거나 Codeforces 검색이 실패할 수 있다.
 
 ### 캐시와 동시 요청
 
@@ -151,6 +174,7 @@ Compose에서는 8081을 호스트에 공개하지 않는다. 관리 서버의 `
 | 사용자를 찾을 수 없음 | 400 | `CODEFORCES_USER_NOT_FOUND` |
 | 통신 실패 또는 그 밖의 Codeforces 실패 | 502 | `CODEFORCES_API_FAILED` |
 | 응답이 없거나 형식이 올바르지 않음 | 502 | `CODEFORCES_API_FAILED` |
+| 락 대기 실패·Redis 명령 실패 또는 장애 우회 조회의 동시 요청 한도 초과 | 503 | `SEARCH_TEMPORARILY_UNAVAILABLE` |
 
 공통 예외 처리기는 클라이언트에 상태와 오류 코드만 반환하고 상세 원인은 서버 로그에 기록한다.
 
@@ -224,6 +248,7 @@ Docker 배포에서는 호스트의 `data/divisions`를 `/app/data/divisions`에
 
 ## 현재 제약
 
-- 검색용 Codeforces API 캐시, 재시도와 호출 제한 전용 처리가 없다.
+- Codeforces API의 전역 호출 간격 제한과 자동 재시도는 구현하지 않았다. Redis 장애 시 동시 1건 제한만으로 전체 호출 빈도를 보장하지는 않는다.
+- 프론트엔드의 `SEARCH_TEMPORARILY_UNAVAILABLE` 전용 안내 문구는 추후 추가한다. 현재는 일반 검색 오류 문구를 표시한다.
 - 추천은 균등 무작위이며 난이도·최근성·대회 길이는 고려하지 않는다.
 - 대회 목록 JSON은 운영자가 직접 갱신해야 한다.

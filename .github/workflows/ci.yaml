@@ -68,12 +68,23 @@ jobs:
             - name: Set up divisons file
               run: cp -r ./.github/fixture/divisions ./data/
 
+            - name: Create temporary Redis secret
+              run: |
+                  umask 077
+                  openssl rand -hex 32 | tr -d '\n' > redis_password.txt
+
             - name: Build Docker images
               run: docker compose --parallel 2 build backend front
 
             - name: Start Docker Compose
               timeout-minutes: 10
               run: docker compose up -d --no-build
+
+            - name: Check Redis authentication
+              run: |
+                  test "$(docker compose exec -T redis redis-cli ping)" = 'NOAUTH Authentication required.'
+                  docker compose exec -T redis sh -ec \
+                    'export REDISCLI_AUTH="$(cat /run/secrets/redis_password)"; test "$(redis-cli ping)" = PONG'
 
             - name: Check Proxy Manager on port 81
               timeout-minutes: 3
@@ -97,11 +108,13 @@ jobs:
             - name: Check backend through API proxy
               timeout-minutes: 3
               run: |
-                  curl --noproxy '*' --silent --show-error \
+                  curl --noproxy '*' --fail --silent --show-error \
                     --retry 30 --retry-delay 2 --retry-all-errors \
                     --retry-max-time 150 --max-time 5 \
-                    http://localhost/api/health | \
-                    grep -q '"backendStatus":200'
+                    --output /tmp/virter-health.json \
+                    http://localhost/api/health
+                  grep -q '"backendStatus":200' /tmp/virter-health.json
+                  grep -q '"redisStatus":200' /tmp/virter-health.json
 
             - name: Show container logs on failure
               if: ${{ failure() }}
