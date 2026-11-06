@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -17,8 +18,12 @@ import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
+import jshyun912.backend.exception.ApiException;
+import jshyun912.backend.service.codeforces.CodeforcesService;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.web.client.RestClient;
+import tools.jackson.databind.json.JsonMapper;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -28,8 +33,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
-import org.springframework.dao.CannotAcquireLockException;
-import org.springframework.dao.DataAccessException;
+import org.springframework.http.HttpStatus;
 import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
@@ -288,10 +292,44 @@ class RedisServiceTest {
     @DisplayName("같은 키의 락을 한 요청이 보유하면")
     class GivenHeldLock {
         private String ownerToken;
+        private CodeforcesService codeforcesService;
 
         @BeforeEach
         void acquireLock() {
-            ownerToken = redisService.lock(key);
+            ownerToken = redisService.tryLock(key);
+            var client = RestClient.builder().requestInterceptor((request, body, execution) -> {
+                throw new AssertionError("다른 소유자의 락이 있으므로 Codeforces를 호출하면 안 됩니다.");
+            }).build();
+            codeforcesService = new CodeforcesService(client, JsonMapper.builder().build(), anotherRedisService);
+        }
+
+        @ParameterizedTest
+        @ValueSource(ints = {0, 123})
+        @DisplayName("락 해제 없이 캐시가 채워져도 대기 중인 검색은 캐시를 반환하고 기존 락을 보존한다")
+        void returnsCacheWhileExistingLockIsStillHeld(int contestId) throws Exception {
+            // given
+            Set<Integer> contests = contestId == 0 ? Set.of() : Set.of(contestId);
+            CountDownLatch started = new CountDownLatch(1);
+
+            // when
+            try (var executor = Executors.newSingleThreadExecutor()) {
+                var waiting = executor.submit(() -> {
+                    started.countDown();
+                    return codeforcesService.getParticipateContest(key);
+                });
+                try {
+                    assertTrue(started.await(2, TimeUnit.SECONDS));
+                    assertThrows(TimeoutException.class, () -> waiting.get(150, TimeUnit.MILLISECONDS));
+                    redisService.add(key, contests);
+                    Set<Integer> result = waiting.get(2, TimeUnit.SECONDS);
+
+                    // then
+                    assertEquals(contests, result);
+                    assertEquals(ownerToken, redisTemplate.opsForValue().get(lockKey));
+                } finally {
+                    waiting.cancel(true);
+                }
+            }
         }
 
         @Test
@@ -320,7 +358,7 @@ class RedisServiceTest {
         void allowsNextOwnerAfterRelease() {
             // when
             redisService.unlock(key, ownerToken);
-            String nextToken = anotherRedisService.lock(key);
+            String nextToken = anotherRedisService.tryLock(key);
 
             // then
             assertNotEquals(ownerToken, nextToken);
@@ -328,31 +366,15 @@ class RedisServiceTest {
         }
 
         @Test
-        @DisplayName("같은 키의 요청은 기존 소유자가 해제할 때까지 대기한다")
-        void serializesRequestsForSameKey() throws Exception {
-            // given
-            CountDownLatch started = new CountDownLatch(1);
-
+        @DisplayName("같은 키의 락을 획득할 수 없으면 대기 없이 null을 반환하고 기존 락을 보존한다")
+        void failsImmediatelyForHeldLock() {
             // when
-            try (var executor = Executors.newSingleThreadExecutor()) {
-                var waiting = executor.submit(() -> {
-                    started.countDown();
-                    return anotherRedisService.lock(key);
-                });
-                try {
-                    assertTrue(started.await(2, TimeUnit.SECONDS));
-                    assertThrows(TimeoutException.class, () -> waiting.get(150, TimeUnit.MILLISECONDS));
-                    redisService.unlock(key, ownerToken);
-                    String nextToken = waiting.get(3, TimeUnit.SECONDS);
+            String token = assertTimeoutPreemptively(Duration.ofSeconds(2),
+                    () -> anotherRedisService.tryLock(key));
 
-                    // then
-                    assertNotEquals(ownerToken, nextToken);
-                    assertEquals(nextToken, redisTemplate.opsForValue().get(lockKey));
-                } finally {
-                    redisService.unlock(key, ownerToken);
-                    waiting.cancel(true);
-                }
-            }
+            // then
+            assertNull(token);
+            assertEquals(ownerToken, redisTemplate.opsForValue().get(lockKey));
         }
 
         @Test
@@ -360,7 +382,7 @@ class RedisServiceTest {
         void allowsIndependentKeys() {
             // when
             String token = assertTimeoutPreemptively(Duration.ofSeconds(2),
-                    () -> anotherRedisService.lock(key + ":other"));
+                    () -> anotherRedisService.tryLock(key + ":other"));
 
             // then
             assertEquals(token, redisTemplate.opsForValue().get(lockKey + ":other"));
@@ -376,47 +398,12 @@ class RedisServiceTest {
                     .until(() -> Boolean.FALSE.equals(redisTemplate.hasKey(lockKey)));
 
             // when
-            String nextToken = anotherRedisService.lock(key);
+            String nextToken = anotherRedisService.tryLock(key);
             redisService.unlock(key, ownerToken);
 
             // then
             assertNotEquals(ownerToken, nextToken);
             assertEquals(nextToken, redisTemplate.opsForValue().get(lockKey));
-        }
-
-        @Test
-        @DisplayName("대기 중 인터럽트가 발생하면 중단하고 기존 소유자의 락을 유지한다")
-        void preservesInterruptAndOriginalLock() throws Exception {
-            // given
-            CountDownLatch started = new CountDownLatch(1);
-            AtomicReference<Throwable> failure = new AtomicReference<>();
-            AtomicBoolean interrupted = new AtomicBoolean();
-            Thread waiting = new Thread(() -> {
-                started.countDown();
-                try {
-                    anotherRedisService.lock(key);
-                } catch (Throwable exception) {
-                    failure.set(exception);
-                    interrupted.set(Thread.currentThread().isInterrupted());
-                }
-            });
-
-            // when
-            waiting.start();
-            try {
-                assertTrue(started.await(2, TimeUnit.SECONDS));
-                waiting.interrupt();
-                waiting.join(3000);
-
-                // then
-                assertFalse(waiting.isAlive());
-                assertTrue(failure.get() instanceof DataAccessException);
-                assertTrue(interrupted.get());
-                assertEquals(ownerToken, redisTemplate.opsForValue().get(lockKey));
-            } finally {
-                waiting.interrupt();
-                waiting.join(3000);
-            }
         }
 
         @Test
@@ -427,9 +414,11 @@ class RedisServiceTest {
             long startedAt = System.nanoTime();
 
             // when
-            assertThrows(CannotAcquireLockException.class, () -> anotherRedisService.lock(key));
+            ApiException failure = assertThrows(ApiException.class,
+                    () -> codeforcesService.getParticipateContest(key));
 
             // then
+            assertEquals(HttpStatus.SERVICE_UNAVAILABLE, failure.getHttpStatus());
             assertTrue(Duration.ofNanos(System.nanoTime() - startedAt).compareTo(Duration.ofSeconds(39)) >= 0);
             assertEquals(ownerToken, redisTemplate.opsForValue().get(lockKey));
         }

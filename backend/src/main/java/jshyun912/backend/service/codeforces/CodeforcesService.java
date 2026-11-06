@@ -13,6 +13,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.dao.QueryTimeoutException;
@@ -25,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -40,6 +42,7 @@ import tools.jackson.databind.json.JsonMapper;
 @RequiredArgsConstructor
 public class CodeforcesService {
     private static final Path DEFAULT_DIVISIONS_DIRECTORY = Path.of("data", "divisions");
+    private static final Duration LOCK_WAIT = Duration.ofSeconds(40);
 
     private final RestClient restClient;
     private final JsonMapper jsonMapper;
@@ -87,14 +90,32 @@ public class CodeforcesService {
     }
 
     private Set<Integer> getCachedOrLoadContests(String handle) {
-        Set<Integer> cached = redisService.get(handle);
-        if (!cached.isEmpty()) {
-            return withoutCacheMarker(cached);
-        }
+        long startedAt = System.nanoTime();
+        do {
+            Set<Integer> cached = redisService.get(handle);
+            if (!cached.isEmpty()) {
+                return withoutCacheMarker(cached);
+            }
 
-        String lockToken = redisService.lock(handle);
+            String lockToken = redisService.tryLock(handle);
+            if (lockToken != null) {
+                return getContestsWithLock(handle, lockToken);
+            }
+
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException exception) {
+                Thread.currentThread().interrupt();
+                throw new CannotAcquireLockException("캐시 락 대기가 중단되었습니다.", exception);
+            }
+        } while (System.nanoTime() - startedAt < LOCK_WAIT.toNanos());
+
+        throw new CannotAcquireLockException("캐시 락 대기 시간을 초과했습니다.");
+    }
+
+    private Set<Integer> getContestsWithLock(String handle, String lockToken) {
         try {
-            cached = redisService.get(handle);
+            Set<Integer> cached = redisService.get(handle);
             if (!cached.isEmpty()) {
                 return withoutCacheMarker(cached);
             }

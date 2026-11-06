@@ -1,6 +1,8 @@
 package jshyun912.backend.service.codeforces;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -27,6 +29,8 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -37,7 +41,6 @@ import org.mockito.Mock;
 import org.mockito.ArgumentMatchers;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.dao.QueryTimeoutException;
 import org.springframework.data.redis.RedisSystemException;
@@ -234,7 +237,7 @@ class CodeforcesServiceTest {
             // then
             assertEquals(Set.of(100), result);
             then(restClient).shouldHaveNoInteractions();
-            then(redisService).should(never()).lock(ArgumentMatchers.anyString());
+            then(redisService).should(never()).tryLock(ArgumentMatchers.anyString());
             then(redisService).should(never()).add(ArgumentMatchers.anyString(), ArgumentMatchers.anySet());
         }
 
@@ -250,7 +253,7 @@ class CodeforcesServiceTest {
             // then
             assertEquals(Set.of(), result);
             then(restClient).shouldHaveNoInteractions();
-            then(redisService).should(never()).lock(ArgumentMatchers.anyString());
+            then(redisService).should(never()).tryLock(ArgumentMatchers.anyString());
             then(redisService).should(never()).add(ArgumentMatchers.anyString(), ArgumentMatchers.anySet());
         }
 
@@ -258,7 +261,7 @@ class CodeforcesServiceTest {
         @DisplayName("락을 기다리는 동안 캐시가 채워지면 Codeforces를 조회하지 않는다")
         void thenRechecksCacheAfterLocking() {
             // given
-            given(redisService.lock(HANDLE)).willReturn(LOCK_TOKEN);
+            given(redisService.tryLock(HANDLE)).willReturn(LOCK_TOKEN);
             given(redisService.get(HANDLE)).willReturn(Set.of()).willReturn(Set.of(0, 200));
 
             // when
@@ -272,22 +275,45 @@ class CodeforcesServiceTest {
         }
 
         @Test
-        @DisplayName("락 대기 시간이 초과되면 Codeforces 조회 없이 503 예외를 반환한다")
-        void thenDoesNotFetchWithoutLock() {
+        @DisplayName("락 대기 중 인터럽트가 발생하면 상태를 보존하고 조회·락 해제 없이 503을 반환한다")
+        void thenStopsWaitingWhenInterrupted() throws Exception {
             // given
-            RuntimeException expected = new CannotAcquireLockException("timeout");
-            given(redisService.lock(HANDLE)).willThrow(expected);
+            CountDownLatch attempted = new CountDownLatch(1);
+            AtomicReference<Throwable> failure = new AtomicReference<>();
+            AtomicBoolean interrupted = new AtomicBoolean();
+            given(redisService.get(HANDLE)).willReturn(Set.of());
+            given(redisService.tryLock(HANDLE)).willAnswer(invocation -> {
+                attempted.countDown();
+                return null;
+            });
+            Thread waiting = new Thread(() -> {
+                try {
+                    codeforcesService.getParticipateContest(HANDLE);
+                } catch (Throwable exception) {
+                    failure.set(exception);
+                    interrupted.set(Thread.currentThread().isInterrupted());
+                }
+            });
 
             // when
-            ApiException exception = assertThrows(ApiException.class,
-                    () -> codeforcesService.getParticipateContest(HANDLE));
+            waiting.start();
+            try {
+                assertTrue(attempted.await(2, TimeUnit.SECONDS));
+                waiting.interrupt();
+                waiting.join(3000);
 
-            // then
-            assertEquals(HttpStatus.SERVICE_UNAVAILABLE, exception.getHttpStatus());
-            assertEquals(ErrorMessage.SEARCH_TEMPORARILY_UNAVAILABLE, exception.getErrorMessage());
-            assertSame(expected, exception.getCause());
-            then(restClient).shouldHaveNoInteractions();
-            then(redisService).should(never()).unlock(ArgumentMatchers.anyString(), ArgumentMatchers.anyString());
+                // then
+                assertFalse(waiting.isAlive());
+                ApiException exception = assertInstanceOf(ApiException.class, failure.get());
+                assertEquals(HttpStatus.SERVICE_UNAVAILABLE, exception.getHttpStatus());
+                assertEquals(ErrorMessage.SEARCH_TEMPORARILY_UNAVAILABLE, exception.getErrorMessage());
+                assertTrue(interrupted.get());
+                then(restClient).shouldHaveNoInteractions();
+                then(redisService).should(never()).unlock(ArgumentMatchers.anyString(), ArgumentMatchers.anyString());
+            } finally {
+                waiting.interrupt();
+                waiting.join(3000);
+            }
         }
 
         @Test
@@ -296,7 +322,7 @@ class CodeforcesServiceTest {
             // given
             given(redisService.get(HANDLE)).willReturn(Set.of());
             RedisSystemException expected = new RedisSystemException("OOM command not allowed", null);
-            given(redisService.lock(HANDLE)).willThrow(expected);
+            given(redisService.tryLock(HANDLE)).willThrow(expected);
 
             // when
             ApiException exception = assertThrows(ApiException.class,
@@ -326,7 +352,7 @@ class CodeforcesServiceTest {
             assertEquals(ErrorMessage.SEARCH_TEMPORARILY_UNAVAILABLE, exception.getErrorMessage());
             assertSame(expected, exception.getCause());
             then(restClient).shouldHaveNoInteractions();
-            then(redisService).should(never()).lock(ArgumentMatchers.anyString());
+            then(redisService).should(never()).tryLock(ArgumentMatchers.anyString());
         }
 
         @Nested
@@ -351,7 +377,7 @@ class CodeforcesServiceTest {
                 // then
                 assertEquals(Set.of(100), result);
                 then(serviceSpy).should().getSubmissions(HANDLE);
-                then(redisService).should(never()).lock(ArgumentMatchers.anyString());
+                then(redisService).should(never()).tryLock(ArgumentMatchers.anyString());
                 then(redisService).should(never()).add(ArgumentMatchers.anyString(), ArgumentMatchers.anySet());
             }
 
@@ -435,7 +461,7 @@ class CodeforcesServiceTest {
             @BeforeEach
             void setUpCacheMissAndLock() {
                 given(redisService.get(HANDLE)).willReturn(Set.of());
-                given(redisService.lock(HANDLE)).willReturn(LOCK_TOKEN);
+                given(redisService.tryLock(HANDLE)).willReturn(LOCK_TOKEN);
             }
 
             @Test

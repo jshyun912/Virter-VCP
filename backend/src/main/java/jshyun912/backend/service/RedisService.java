@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
@@ -18,8 +17,7 @@ import org.springframework.stereotype.Service;
 public class RedisService {
     private static final Duration CACHE_TTL = Duration.ofHours(2);
     private static final String LOCK_PREFIX = "lock:codeforces:";
-    private static final Duration LOCK_TTL = Duration.ofSeconds(60);
-    private static final Duration LOCK_WAIT = Duration.ofSeconds(40);
+    public static final Duration LOCK_TTL = Duration.ofSeconds(60);
     private static final DefaultRedisScript<Long> UNLOCK_SCRIPT = new DefaultRedisScript<>("""
             if redis.call('get', KEYS[1]) == ARGV[1] then
                 return redis.call('del', KEYS[1])
@@ -47,23 +45,10 @@ public class RedisService {
 
     private final StringRedisTemplate redisTemplate;
 
-    public String lock(String key) {
+    public String tryLock(String key) {
         String token = UUID.randomUUID().toString();
-        long startedAt = System.nanoTime();
-
-        do {
-            if (Boolean.TRUE.equals(redisTemplate.opsForValue().setIfAbsent(LOCK_PREFIX + key, token, LOCK_TTL))) {
-                return token;
-            }
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException exception) {
-                Thread.currentThread().interrupt();
-                throw new CannotAcquireLockException("캐시 락 대기가 중단되었습니다.", exception);
-            }
-        } while (System.nanoTime() - startedAt < LOCK_WAIT.toNanos());
-
-        throw new CannotAcquireLockException("캐시 락 대기 시간을 초과했습니다.");
+        return Boolean.TRUE.equals(redisTemplate.opsForValue().setIfAbsent(LOCK_PREFIX + key, token, LOCK_TTL))
+                ? token : null;
     }
 
     public void unlock(String key, String token) {
