@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.BDDMockito.willReturn;
 import static org.mockito.BDDMockito.willThrow;
-import static org.mockito.Mockito.spy;
 
 import jshyun912.backend.dto.codeforces.Contest;
 import jshyun912.backend.dto.search.SearchRequest;
@@ -15,6 +14,7 @@ import jshyun912.backend.dto.search.SearchResponse;
 import jshyun912.backend.exception.ApiException;
 import jshyun912.backend.exception.ErrorMessage;
 import jshyun912.backend.service.codeforces.CodeforcesService;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,27 +25,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.client.RestClient;
-import tools.jackson.databind.json.JsonMapper;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("SearchService")
 class SearchServiceTest {
     @Mock
-    private RestClient restClient;
-
-    @Mock
-    private JsonMapper jsonMapper;
-
-    @Mock
-    private RedisService redisService;
-
     private CodeforcesService codeforcesService;
+
     private SearchService searchService;
 
     @BeforeEach
     void setUp() {
-        codeforcesService = spy(new CodeforcesService(restClient, jsonMapper, redisService));
         searchService = new SearchService(codeforcesService);
     }
 
@@ -60,9 +50,8 @@ class SearchServiceTest {
         Contest participatedContest = contest(100);
         Contest div2Contest = contest(101);
         Contest div3Contest = contest(102);
-        codeforcesService.div2ContestList.addAll(List.of(participatedContest, div2Contest));
-        codeforcesService.div3ContestList.add(div3Contest);
-        codeforcesService.div1ContestList.add(contest(103));
+        willReturn(new ArrayList<>(List.of(participatedContest, div2Contest, div3Contest)))
+                .given(codeforcesService).getContestCandidates(6);
         willReturn(Set.of(100)).given(codeforcesService).getParticipateContest("alice");
         willReturn(Set.of()).given(codeforcesService).getParticipateContest("bob");
 
@@ -73,6 +62,7 @@ class SearchServiceTest {
         assertEquals(Set.of(div2Contest, div3Contest), Set.copyOf(response.contestList()));
         then(codeforcesService).should().getParticipateContest("alice");
         then(codeforcesService).should().getParticipateContest("bob");
+        then(codeforcesService).should().getContestCandidates(6);
     }
 
     @Test
@@ -80,7 +70,7 @@ class SearchServiceTest {
     void thenReturnsAtMostThreeContests() {
         // given
         List<Contest> candidates = List.of(contest(100), contest(101), contest(102), contest(103));
-        codeforcesService.div2ContestList.addAll(candidates);
+        willReturn(new ArrayList<>(candidates)).given(codeforcesService).getContestCandidates(4);
         willReturn(Set.of()).given(codeforcesService).getParticipateContest("alice");
 
         // when
@@ -93,14 +83,14 @@ class SearchServiceTest {
     }
 
     @Test
-    @DisplayName("기타 대회 비트만 선택하면 빈 목록을 반환한다")
-    void thenReturnsEmptyListWhenOnlyOtherContestBitIsSelected() {
+    @DisplayName("모든 후보에 참여했으면 빈 목록을 반환한다")
+    void thenReturnsEmptyListWhenAllCandidatesWereParticipated() {
         // given
-        codeforcesService.otherContestList.add(contest(100));
-        willReturn(Set.of()).given(codeforcesService).getParticipateContest("alice");
+        willReturn(new ArrayList<>(List.of(contest(100)))).given(codeforcesService).getContestCandidates(4);
+        willReturn(Set.of(100)).given(codeforcesService).getParticipateContest("alice");
 
         // when
-        SearchResponse response = searchService.search(new SearchRequest(List.of("alice"), 64));
+        SearchResponse response = searchService.search(new SearchRequest(List.of("alice"), 4));
 
         // then
         assertEquals(List.of(), response.contestList());

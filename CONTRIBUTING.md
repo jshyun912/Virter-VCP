@@ -54,6 +54,8 @@ npm run build
 
 Redis 통합 테스트는 Testcontainers로 실제 Redis를 실행하므로 Docker 접근 권한이 필요하다. 2시간 TTL, 빈 기록 표식, 동시 저장과 락의 소유권·만료·대기 한도를 검증한다. Codeforces 서비스 테스트는 Redis 장애 우회, 메모리 부족·락 대기 실패의 503 변환, 캐시 저장 실패 시 조회 결과 보존을 확인한다. 실행 방법은 [백엔드 작업 가이드](backend/README.md#redis-통합-테스트)를 따른다.
 
+대회 목록 갱신 테스트는 모의 API 응답과 임시 JSON 파일을 사용해 JSON 검증, 완료 대회 분류, 파일·메모리 갱신과 실패 시 기존 목록 유지를 확인한다. 실제 Codeforces API는 호출하지 않는다.
+
 ## GitHub Actions CI
 
 [ci.yaml](.github/workflows/ci.yaml)은 `main`을 대상으로 하는 Pull Request에서 실행된다. `dev`에 대한 푸시만으로는 실행되지 않는다.
@@ -65,6 +67,6 @@ Redis 통합 테스트는 Testcontainers로 실제 Redis를 실행하므로 Dock
 
 현재 워크플로는 테스트와 Compose 실행 검증을 수행하며, 레지스트리로 이미지를 푸시하거나 운영 서버에 배포하지 않는다.
 
-`.github/fixture/divisions`는 CI의 대회 JSON 입력이다. 워크플로가 이를 루트의 `data/divisions` 경로에 준비하여 Compose 마운트에 사용한다. 백엔드 테스트 자체는 `backend/src/test/resources/divisions`의 전용 데이터를 사용한다. 대회 JSON은 자동으로 내려받지 않으므로 두 종류의 테스트 데이터를 운영용 데이터와 구분해 유지한다.
+`.github/fixture/divisions`는 CI의 최초 대회 JSON 입력이다. 워크플로가 이를 루트의 `data/divisions` 경로에 준비하여 Compose 마운트에 사용한다. 백엔드 테스트 자체는 `backend/src/test/resources/divisions`의 전용 데이터를 사용한다. 두 종류의 테스트 데이터는 운영용 데이터와 구분해 유지한다. Compose의 백엔드는 시작 시 완료 대회 목록 갱신을 시도하며, Codeforces 조회가 실패해도 준비된 JSON으로 실행한다. CI가 최초 입력 파일을 별도로 준비하는 절차와 실행 중 자동 갱신은 별개다.
 
 토큰 권한은 `contents: read`로 제한하고, checkout 자격 증명은 저장하지 않는다. CI에서 `docker compose down --volumes`를 사용하는 것은 테스트용 볼륨을 정리하기 위해서다. 운영 환경에서는 같은 옵션이 Proxy Manager 설정과 인증서도 삭제하므로 그대로 실행하지 않는다.

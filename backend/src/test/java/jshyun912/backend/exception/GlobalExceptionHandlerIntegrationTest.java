@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import jshyun912.backend.dto.search.SearchRequest;
 import jshyun912.backend.service.SearchService;
+import jshyun912.backend.service.codeforces.CodeforcesService;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -32,6 +33,9 @@ class GlobalExceptionHandlerIntegrationTest {
 
     @MockitoBean
     private SearchService searchService;
+
+    @MockitoBean
+    private CodeforcesService codeforcesService;
 
     @Test
     @DisplayName("지원하지 않는 메서드는 405와 허용된 메서드 헤더를 반환한다")
