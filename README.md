@@ -10,12 +10,14 @@
 ### 준비 사항
 - Docker (compose 플러그인 필요)
 - 호스트의 80·443·81번 포트가 사용 가능해야함
+- 설치 직전 [Codeforces Health](https://codeforces.com/api/system.status)의 Status가 OK인지 확인하세요.
+    - OK가 아니거나 반응이 없다면 정상으로 돌아올때 설치해주세요.
 
 ### 설치 방법
 
 1. 이 저장소를 clone 하세요.
 
-2. 저장소 루트에서 redis_password.txt 파일을 만든 후 redis용 비밀번호를 작성해주세요. (비밀번호는 비어 있지 않은 16진수 문자열이어야 합니다.)
+2. 저장소 루트에서 `umask 077`을 적용해 `redis_password.txt`를 만들고 Redis 비밀번호를 작성해주세요. 비밀번호는 비어 있지 않은 16진수 문자열이어야 합니다. 기존 파일은 `chmod 600 redis_password.txt`로 권한을 제한해주세요. 생성 명령은 [Docker Redis 설정](backend/README.md#docker-redis-설정)을 참고하세요.
 
 3. 저장소 루트에서 아래 스크립트를 터미널에 입력해주세요.
 

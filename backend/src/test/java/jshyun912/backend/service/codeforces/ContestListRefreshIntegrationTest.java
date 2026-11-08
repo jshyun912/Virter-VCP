@@ -2,9 +2,11 @@ package jshyun912.backend.service.codeforces;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.willAnswer;
 import static org.mockito.BDDMockito.willThrow;
@@ -19,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -301,6 +304,170 @@ class ContestListRefreshIntegrationTest {
             server.verify();
         }
 
+        @ParameterizedTest
+        @ValueSource(strings = {"Div2.json", "Div3.json"})
+        @DisplayName("로컬 파일 안이나 파일 사이에 ID가 중복되면 ID와 파일명을 알리고 시작을 거부한다")
+        void thenRejectsDuplicateLocalIds(String duplicateFile) throws IOException {
+            // Given
+            writeDivisionFile("Div2.json", "[" + LOCAL_CONTEST + "]");
+            writeDivisionFile(duplicateFile, duplicateFile.equals("Div2.json")
+                    ? "[" + LOCAL_CONTEST + "," + LOCAL_CONTEST + "]" : "[" + LOCAL_CONTEST + "]");
+
+            // When
+            ApiException exception = assertThrows(ApiException.class, service::initContestList);
+
+            // Then
+            assertLoadFailure(exception);
+            assertTrue(exception.getDetail().contains("90"));
+            assertTrue(exception.getDetail().contains("Div2.json"));
+            assertTrue(exception.getDetail().contains(duplicateFile));
+            assertNotNull(exception.getCause());
+            assertEquals(exception.getDetail(), exception.getCause().getMessage());
+            server.verify();
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = {"BEFORE", "CODING", "PENDING_SYSTEM_TEST", "SYSTEM_TEST", "UNKNOWN"})
+        @DisplayName("로컬 대회가 완료 상태가 아니면 API 조회 전에 시작을 거부한다")
+        void thenRejectsUnfinishedLocalContest(String phase) throws IOException {
+            // Given
+            writeDivisionFile("Div2.json", "[{\"id\":90,\"name\":\"Round\",\"phase\":\"" + phase + "\"}]");
+
+            // When
+            ApiException exception = assertThrows(ApiException.class, service::initContestList);
+
+            // Then
+            assertLoadFailure(exception);
+            server.verify();
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = {"[]", "null", "[{\"id\":100,\"name\":\"Round\",\"phase\":\"BEFORE\"}]"})
+        @DisplayName("초기 조회 후 완료 대회가 하나도 없으면 빈 목록으로 실행하지 않고 시작을 거부한다")
+        void thenRejectsEmptyInitialSnapshot(String contests) {
+            // Given
+            expectResponse(successfulContestResponse(contests));
+
+            // When
+            ApiException exception = assertThrows(ApiException.class, service::initContestList);
+
+            // Then
+            assertLoadFailure(exception);
+            server.verify();
+        }
+
+        @Test
+        @DisplayName("빈 로컬 목록의 최초 API 조회가 실패하면 시작을 거부한다")
+        void thenRejectsEmptySnapshotAfterStartupApiFailure() {
+            // Given
+            expectResponse(withServerError());
+
+            // When
+            ApiException exception = assertThrows(ApiException.class, service::initContestList);
+
+            // Then
+            assertLoadFailure(exception);
+            assertNotNull(exception.getCause());
+            assertTrue(exception.getCause().getMessage().contains("완료 대회"));
+            server.verify();
+        }
+
+        @Nested
+        @DisplayName("파일 교체 도중 프로세스가 중단되어 백업과 pending 표시가 남으면")
+        class GivenInterruptedRefresh {
+            private Path staging;
+            private Map<String, String> originalFiles;
+
+            @BeforeEach
+            void prepareInterruptedRefresh() throws IOException {
+                writeDivisionFile("Div2.json", "[" + LOCAL_CONTEST + "]");
+                originalFiles = readAllFiles();
+                staging = Files.createDirectory(divisionsDirectory.resolve(".refresh-interrupted"));
+                for (String fileName : DIVISION_FILES) {
+                    Files.copy(divisionsDirectory.resolve(fileName), staging.resolve(fileName + ".bak"));
+                }
+                Files.writeString(staging.resolve("pending"), "");
+                writeDivisionFile("Div2.json", UPDATED_CONTESTS);
+            }
+
+            @Test
+            @DisplayName("로컬 목록을 읽기 전에 이전 버전 전체를 복구하고 API 장애에도 해당 목록으로 시작한다")
+            void thenRestoresBeforeLoadingLocalFiles() throws IOException {
+                // Given
+                Files.writeString(divisionsDirectory.resolve("Div3.json"), "interrupted JSON");
+                expectResponse(withServerError());
+
+                // When
+                service.initContestList();
+
+                // Then
+                assertEquals(originalFiles, readAllFiles());
+                assertEquals(List.of(90), candidateIds(4));
+                assertFalse(Files.exists(staging));
+                server.verify();
+            }
+
+            @Test
+            @DisplayName("복구 중 실패해도 모든 원본 백업을 남겨 다음 시작에 다시 복구한다")
+            void thenRetriesFailedRecoveryWithIntactBackups() throws IOException {
+                // Given
+                Path blockedFile = divisionsDirectory.resolve("Div3.json");
+                Files.delete(blockedFile);
+                Files.createDirectory(blockedFile);
+
+                // When
+                ApiException exception = assertThrows(ApiException.class, service::initContestList);
+
+                // Then
+                assertLoadFailure(exception);
+                assertTrue(Files.exists(staging.resolve("pending")));
+                for (String fileName : DIVISION_FILES) {
+                    assertEquals(originalFiles.get(fileName), Files.readString(staging.resolve(fileName + ".bak")));
+                }
+                Files.delete(blockedFile);
+                expectResponse(withServerError());
+                assertDoesNotThrow(service::initContestList);
+                assertEquals(originalFiles, readAllFiles());
+                assertEquals(List.of(90), candidateIds(4));
+                assertFalse(Files.exists(staging));
+                server.verify();
+            }
+
+            @Test
+            @DisplayName("백업이 불완전하면 복구를 완료한 것으로 간주하지 않고 시작을 거부한다")
+            void thenRejectsIncompleteBackup() throws IOException {
+                // Given
+                Files.delete(staging.resolve("others.json.bak"));
+
+                // When
+                ApiException exception = assertThrows(ApiException.class, service::initContestList);
+
+                // Then
+                assertLoadFailure(exception);
+                assertTrue(Files.exists(staging.resolve("pending")));
+                assertTrue(Files.exists(staging.resolve("Div2.json.bak")));
+                server.verify();
+            }
+
+            @Test
+            @DisplayName("pending 표시가 없으면 완료된 버전을 유지하고 남은 임시 파일만 정리한다")
+            void thenKeepsCommittedFilesWithoutPendingMarker() throws IOException {
+                // Given
+                Files.delete(staging.resolve("pending"));
+                Map<String, String> committedFiles = readAllFiles();
+                expectResponse(withServerError());
+
+                // When
+                service.initContestList();
+
+                // Then
+                assertEquals(committedFiles, readAllFiles());
+                assertEquals(List.of(100, 101), candidateIds(4));
+                assertFalse(Files.exists(staging));
+                server.verify();
+            }
+        }
+
         @Nested
         @DisplayName("로컬 파일을 읽을 수 없으면")
         class GivenUnreadableLocalFile {
@@ -439,16 +606,17 @@ class ContestListRefreshIntegrationTest {
                 server.verify();
             }
 
-            @Test
+            @ParameterizedTest
+            @ValueSource(strings = {"Div2.json", "Div3.json"})
             @DisplayName("파일 교체 중 실패하면 이미 교체한 파일을 복구하고 이전 메모리를 유지한다")
-            void thenRollsBackReplacedFilesWhenLaterMoveFails() throws IOException {
+            void thenRollsBackReplacedFilesWhenLaterMoveFails(String blockedFile) throws IOException {
                 // Given
                 Map<String, String> originalFiles = readAllFiles();
                 willAnswer(invocation -> {
                     invocation.callRealMethod();
                     File stagedFile = invocation.getArgument(0);
                     if (stagedFile.getName().equals("others.json")) {
-                        Path blockedMove = stagedFile.toPath().resolveSibling("Div2.json");
+                        Path blockedMove = stagedFile.toPath().resolveSibling(blockedFile);
                         Files.delete(blockedMove);
                         Files.createDirectory(blockedMove);
                     }
@@ -462,6 +630,27 @@ class ContestListRefreshIntegrationTest {
                 // Then
                 assertEquals(originalFiles, readAllFiles());
                 assertEquals(List.of(90), candidateIds(4));
+                server.verify();
+            }
+
+            @Test
+            @DisplayName("갱신된 JSON에도 원본 파일의 소유자와 접근 권한을 보존한다")
+            void thenPreservesFileOwnerAndPermissions() throws IOException {
+                // Given
+                assumeTrue(Files.getFileStore(divisionsDirectory).supportsFileAttributeView("posix"));
+                Path originalFile = divisionsDirectory.resolve("Div2.json");
+                var permissions = PosixFilePermissions.fromString("rw-------");
+                Files.setPosixFilePermissions(originalFile, permissions);
+                var owner = Files.getOwner(originalFile);
+                expectResponse(successfulContestResponse(UPDATED_CONTESTS));
+
+                // When
+                service.refreshContestList();
+
+                // Then
+                assertEquals(List.of(90, 100, 101), savedIds("Div2.json"));
+                assertEquals(owner, Files.getOwner(originalFile));
+                assertEquals(permissions, Files.getPosixFilePermissions(originalFile));
                 server.verify();
             }
 

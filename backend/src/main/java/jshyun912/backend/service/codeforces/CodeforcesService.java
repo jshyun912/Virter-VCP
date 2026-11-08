@@ -31,6 +31,7 @@ import java.nio.file.StandardCopyOption;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -181,14 +182,37 @@ public class CodeforcesService {
         return contests;
     }
 
+    /** 중단된 저장을 복구한 뒤 로컬 데이터를 검증하고, 초기 조회 후에도 대회가 없으면 시작을 거부한다. */
     @PostConstruct
     public void initContestList() {
+        try {
+            recoverContestLists();
+        } catch (IOException exception) {
+            throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessage.CONTEST_DATA_LOAD_FAILED,
+                    "중단된 대회 목록 갱신을 복구하지 못했습니다.", exception);
+        }
         Map<Division, List<Contest>> loaded = new EnumMap<>(Division.class);
+        Map<Integer, String> idFiles = new HashMap<>();
         for (Division division : Division.values()) {
-            loaded.put(division, readContestList(division.fileName));
+            List<Contest> contests = readContestList(division.fileName);
+            for (Contest contest : contests) {
+                String previousFile = idFiles.putIfAbsent(contest.id(), division.fileName);
+                if (previousFile != null) {
+                    String detail = "대회 ID %d가 %s와 %s에 중복되었습니다."
+                            .formatted(contest.id(), previousFile, division.fileName);
+                    throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessage.CONTEST_DATA_LOAD_FAILED,
+                            detail, new IllegalArgumentException(detail));
+                }
+            }
+            loaded.put(division, contests);
         }
         contestLists = Map.copyOf(loaded);
         refreshContestList();
+        if (contestLists.values().stream().allMatch(List::isEmpty)) {
+            String detail = "초기 조회 후 완료 대회가 없어 서버를 시작할 수 없습니다. Codeforces 상태를 확인하세요.";
+            throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessage.CONTEST_DATA_LOAD_FAILED,
+                    detail, new IllegalStateException(detail));
+        }
     }
 
     /** 하나의 목록 버전에서 선택한 division을 복사한다. 반환 목록의 변경은 원본에 영향을 주지 않는다. */
@@ -207,6 +231,7 @@ public class CodeforcesService {
     @Scheduled(cron = "0 0 12 * * *", zone = "Asia/Seoul")
     public synchronized void refreshContestList() {
         try {
+            recoverContestLists();
             CodeforcesResponse<List<Contest>> response = restClient.get()
                     .uri("https://codeforces.com/api/contest.list?gym=false")
                     .retrieve()
@@ -249,6 +274,7 @@ public class CodeforcesService {
         }
     }
 
+    /** 복합 디비전을 먼저 판별해 Educational과 통합 대회를 단일 Div로 오분류하지 않는다. */
     private Division classify(String name) {
         Set<String> divisions = DIVISION_PATTERN.matcher(name).results()
                 .map(match -> match.group(1)).collect(Collectors.toSet());
@@ -273,6 +299,7 @@ public class CodeforcesService {
         return Division.OTHER;
     }
 
+    /** API와 로컬 파일에 공통인 형식을 검사하며, API의 미종료 대회는 이후 필터링을 위해 허용한다. */
     private List<Contest> requireContestList(CodeforcesResponse<List<Contest>> response) {
         if (response == null || !"OK".equals(response.status()) || response.result() == null
                 || response.result().stream().anyMatch(contest -> contest == null || contest.id() == null
@@ -283,61 +310,94 @@ public class CodeforcesService {
         return List.copyOf(response.result());
     }
 
+    /** 수동 입력한 로컬 데이터에서도 완료 대회만 추천하도록 검증한다. */
     private List<Contest> readContestList(String fileName) {
         Path divisionFile = divisionsDirectory.resolve(fileName);
         try (InputStream inputStream = Files.newInputStream(divisionFile)) {
-            return requireContestList(jsonMapper.readValue(inputStream,
+            List<Contest> contests = requireContestList(jsonMapper.readValue(inputStream,
                     new TypeReference<CodeforcesResponse<List<Contest>>>() {
                     }));
+            if (contests.stream().anyMatch(contest -> !"FINISHED".equals(contest.phase()))) {
+                throw new IllegalArgumentException("로컬 목록에는 FINISHED 대회만 저장할 수 있습니다.");
+            }
+            return contests;
         } catch (IOException | JacksonException | IllegalArgumentException exception) {
             throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR,
                     ErrorMessage.CONTEST_DATA_LOAD_FAILED, "대회 목록 파일 " + divisionFile + "을 불러오지 못했습니다.", exception);
         }
     }
 
+    /** 모든 백업을 준비한 뒤 pending을 남겨, 프로세스 중단 후에도 이전 목록 전체를 복구할 수 있게 한다. */
     private void writeContestLists(Map<Division, List<Contest>> updated) throws IOException {
         Path staging = Files.createTempDirectory(divisionsDirectory, ".refresh-");
-        List<Division> replaced = new ArrayList<>();
-        boolean keepBackup = false;
+        Path pending = staging.resolve("pending");
         try {
             for (Division division : Division.values()) {
+                Path original = divisionsDirectory.resolve(division.fileName);
+                Files.copy(original, staging.resolve(division.fileName), StandardCopyOption.COPY_ATTRIBUTES);
                 jsonMapper.writeValue(staging.resolve(division.fileName).toFile(),
                         new CodeforcesResponse<>("OK", null, updated.get(division)));
-                Files.copy(divisionsDirectory.resolve(division.fileName),
-                        staging.resolve(division.fileName + ".bak"));
+                Files.copy(original, staging.resolve(division.fileName + ".bak"), StandardCopyOption.COPY_ATTRIBUTES);
             }
-            try {
-                for (Division division : Division.values()) {
-                    Files.move(staging.resolve(division.fileName), divisionsDirectory.resolve(division.fileName),
-                            StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
-                    replaced.add(division);
-                }
-            } catch (IOException failure) {
-                for (Division division : replaced) {
-                    try {
-                        Files.move(staging.resolve(division.fileName + ".bak"),
-                                divisionsDirectory.resolve(division.fileName),
-                                StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
-                    } catch (IOException rollbackFailure) {
-                        keepBackup = true;
-                        failure.addSuppressed(rollbackFailure);
-                    }
-                }
-                throw failure;
+            Files.writeString(pending, "");
+            for (Division division : Division.values()) {
+                Files.move(staging.resolve(division.fileName), divisionsDirectory.resolve(division.fileName),
+                        StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
             }
+            Files.delete(pending);
+        } catch (IOException | JacksonException failure) {
+            if (Files.exists(pending)) {
+                try {
+                    restoreContestLists(staging);
+                } catch (IOException rollbackFailure) {
+                    failure.addSuppressed(rollbackFailure);
+                }
+            }
+            throw failure;
         } finally {
-            if (keepBackup) {
+            if (Files.exists(pending)) {
                 log.error("대회 파일 복구에 실패해 원본 백업을 {}에 보존합니다.", staging);
             } else {
-                try (var files = Files.list(staging)) {
-                    for (Path file : files.toList()) {
-                        Files.delete(file);
-                    }
-                    Files.delete(staging);
-                } catch (IOException cleanupFailure) {
-                    log.warn("대회 갱신 임시 디렉터리를 정리하지 못했습니다: {}", staging, cleanupFailure);
-                }
+                deleteStaging(staging);
             }
+        }
+    }
+
+    /** 파일을 읽거나 개수를 비교하기 전에 미완료 교체를 되돌린다. */
+    private void recoverContestLists() throws IOException {
+        try (var entries = Files.list(divisionsDirectory)) {
+            for (Path staging : entries.filter(Files::isDirectory)
+                    .filter(path -> path.getFileName().toString().startsWith(".refresh-")).toList()) {
+                if (Files.exists(staging.resolve("pending"))) {
+                    restoreContestLists(staging);
+                    log.warn("중단된 대회 목록 갱신을 이전 버전으로 복구했습니다: {}", staging);
+                }
+                deleteStaging(staging);
+            }
+        }
+    }
+
+    /** 복구 자체가 중단되어도 재시도할 수 있도록 원본 백업을 이동하지 않고 복사한다. */
+    private void restoreContestLists(Path staging) throws IOException {
+        for (Division division : Division.values()) {
+            Path restored = staging.resolve(division.fileName + ".restore");
+            Files.copy(staging.resolve(division.fileName + ".bak"), restored,
+                    StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
+            Files.move(restored, divisionsDirectory.resolve(division.fileName),
+                    StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+        }
+        Files.delete(staging.resolve("pending"));
+    }
+
+    /** 커밋이나 복구가 끝난 임시 파일의 정리 실패는 완료된 갱신을 되돌리지 않는다. */
+    private void deleteStaging(Path staging) {
+        try (var files = Files.list(staging)) {
+            for (Path file : files.toList()) {
+                Files.delete(file);
+            }
+            Files.delete(staging);
+        } catch (IOException cleanupFailure) {
+            log.warn("대회 갱신 임시 디렉터리를 정리하지 못했습니다: {}", staging, cleanupFailure);
         }
     }
 
