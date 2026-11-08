@@ -9,7 +9,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.health.actuate.endpoint.HealthEndpoint;
+import org.springframework.boot.health.actuate.endpoint.CompositeHealthDescriptor;
 import org.springframework.boot.health.contributor.Status;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -20,7 +22,7 @@ public class HealthService {
     private final ReentrantLock refreshLock = new ReentrantLock();
 
     private volatile LocalDateTime lastChecked = LocalDateTime.MIN;
-    private volatile HealthResponse cachedHealth = new HealthResponse(false, 503);
+    private volatile HealthResponse cachedHealth = new HealthResponse(false, 503, 503);
 
     @Autowired
     public HealthService(HealthEndpoint healthEndpoint, @Value("${management.server.port:8081}") int managementPort) {
@@ -53,10 +55,22 @@ public class HealthService {
     }
 
     private void refreshHealth() {
-        boolean healthy = Status.UP.equals(healthEndpoint.health().getStatus());
+        var health = healthEndpoint.health();
+        boolean backendHealthy = Status.UP.equals(health.getStatus());
+        if (health instanceof CompositeHealthDescriptor composite) {
+            backendHealthy &= composite.getComponents().values().stream()
+                    .allMatch(component -> Status.UP.equals(component.getStatus()));
+        }
+        int backendStatus = backendHealthy ? 200 : 503;
+        var redisHealth = health instanceof CompositeHealthDescriptor composite
+                ? composite.getComponents().get("redis") : null;
+        int redisStatus = redisHealth != null && Status.UP.equals(redisHealth.getStatus()) ? 200 : 503;
+        boolean healthy = HttpStatusCode.valueOf(backendStatus).is2xxSuccessful()
+                && HttpStatusCode.valueOf(redisStatus).is2xxSuccessful();
         cachedHealth = HealthResponse.builder()
                 .isHealthy(healthy)
-                .backendStatus(healthy ? 200 : 503)
+                .backendStatus(backendStatus)
+                .redisStatus(redisStatus)
                 .build();
         lastChecked = LocalDateTime.now(clock);
     }

@@ -29,6 +29,8 @@ class HealthServiceConfigurationTest {
             TestPropertyValues.of("management.server.port=8081").applyTo(context);
             context.registerBean("backendHealthIndicator", HealthIndicator.class,
                     () -> () -> Health.status(status).build());
+            context.registerBean("redisHealthIndicator", HealthIndicator.class,
+                    () -> () -> Health.up().build());
             context.register(HealthContributorRegistryAutoConfiguration.class,
                     HealthEndpointAutoConfiguration.class, HealthService.class);
             context.refresh();
@@ -37,7 +39,30 @@ class HealthServiceConfigurationTest {
             HealthResponse response = context.getBean(HealthService.class).requireHealth();
 
             // then
-            assertEquals(new HealthResponse(healthy, backendStatus), response);
+            assertEquals(new HealthResponse(healthy, backendStatus, 200), response);
+        }
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"DOWN", "OUT_OF_SERVICE", "UNKNOWN"})
+    @DisplayName("Redis가 UP 이외의 상태이면 전체 상태와 redisStatus를 실패로 처리한다")
+    void rejectsUnhealthyRedis(String redisStatus) {
+        // given
+        try (var context = new AnnotationConfigApplicationContext()) {
+            TestPropertyValues.of("management.server.port=8081").applyTo(context);
+            context.registerBean("backendHealthIndicator", HealthIndicator.class,
+                    () -> () -> Health.up().build());
+            context.registerBean("redisHealthIndicator", HealthIndicator.class,
+                    () -> () -> Health.status(redisStatus).build());
+            context.register(HealthContributorRegistryAutoConfiguration.class,
+                    HealthEndpointAutoConfiguration.class, HealthService.class);
+            context.refresh();
+
+            // when
+            HealthResponse response = context.getBean(HealthService.class).requireHealth();
+
+            // then
+            assertEquals(new HealthResponse(false, 503, 503), response);
         }
     }
 
