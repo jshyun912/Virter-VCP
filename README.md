@@ -4,27 +4,52 @@
 
 여러 사람들과 Virtual Contest를 하고 싶은데 무슨 set을 돌지 고민이신가요? Virter가 골라드립니다!
 
----
-## 사용 방법
 
-현재는 배포되고 있지 않습니다.
+## 사용 방법
 
 ### 준비 사항
 - Docker (compose 플러그인 필요)
-- 대회 정보를 담고 있는 JSON 파일  
-    - JSON 파일에 대해서는 [다음 문서](ARCHITECTURE.md#div-데이터-초기화)를 참고하세요.
-    - 간단히 동작 여부만 알고 싶으면 [샘플 데이터](/.github/fixture/divisions/)의 JSON 파일 7개를 저장소 루트의 `data/divisions` 디렉터리에 복사해서 사용하시면 됩니다.
-    - 최초 실행에는 유효한 JSON 파일 7개가 필요합니다. 이후 서버 시작 시와 매일 한국 시간 낮 12시에 완료 대회 목록을 자동 갱신하며, 갱신 후 재시작할 필요는 없습니다.
-    - Codeforces 조회나 갱신에 실패하면 기존 목록으로 계속 실행합니다. JSON 디렉터리에는 백엔드의 쓰기 권한이 필요합니다.
+- 호스트의 80·443·81번 포트가 사용 가능해야함
 
+### 설치 방법
+
+1. 이 저장소를 clone 하세요.
+
+2. 저장소 루트에서 redis_password.txt 파일을 만든 후 redis용 비밀번호를 작성해주세요. (비밀번호는 비어 있지 않은 16진수 문자열이어야 합니다.)
+
+3. 저장소 루트에서 아래 스크립트를 터미널에 입력해주세요.
 
 ```bash
-docker build -t backend:latest ./backend
-docker build -t front:latest ./front
+docker compose up -d --build
+```
+
+4. 브라우저에서 [http://localhost](http://localhost) 로 접속하세요.
+
+### 서버 중단 및 재개 방법
+
+저장소 루트에서
+
+```bash
+docker compose down
+```
+
+로 서버를 중단할 수 있습니다.
+
+```bash
 docker compose up -d
 ```
 
-다음 명령을 수행 후  브라우저에서 [http://localhost](http://localhost) 로 접속하세요.
+로 중단한 서버를 재개할 수 있습니다.
+
+### 삭제 방법
+
+저장소 루트에서 다음 명령으로 서버를 중단하고 컨테이너·Compose 네트워크 및 관련 서비스 이미지를 삭제합니다.
+
+```bash
+docker compose down --rmi all
+```
+
+Proxy Manager 설정·인증서 볼륨과 로컬 파일은 유지됩니다.
 
 ---
 

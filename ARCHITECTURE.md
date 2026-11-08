@@ -12,7 +12,7 @@
 | Backend | Spring Boot 4 / Java 25 | 검색 API, 헬스 API와 Codeforces 연동 |
 | Cache | Redis 8.10.3 | 핸들별 참여 대회 ID의 2시간 캐시와 분산 락 |
 | 외부 API | Codeforces API | 사용자 제출 이력과 완료 대회 목록 조회 |
-| 대회 목록 파일 | `data/divisions/*.json` | 최초 입력 후 자동 갱신하는 Div별 완료 대회 목록 |
+| 대회 목록 파일 | `data/divisions/*.json` | 저장소의 빈 목록에서 시작해 자동 갱신하는 Div별 완료 대회 목록 |
 
 ## 디렉터리 개요
 
@@ -28,7 +28,7 @@ backend/                       Spring Boot 애플리케이션
     dto/codeforces/            Codeforces API 응답 DTO
     config/                    RestClient 설정
     exception/                 API 예외와 공통 오류 응답 처리
-data/divisions/                최초 입력 후 자동 갱신하는 Div별 대회 목록 JSON (저장소에 미포함)
+data/divisions/                빈 JSON 7개를 Git으로 제공하며 실행 중 대회 목록을 추가
 ```
 
 ## Backend 요청 흐름
@@ -203,7 +203,7 @@ Spring MVC가 처리하는 HTTP 오류는 원래 상태와 응답 헤더를 유�
 | `Div4.json` | Div. 4 |
 | `others.json` | 기타 대회 |
 
-저장 경로는 `app.divisions-directory` 설정으로 변경할 수 있으며 기본값은 실행 디렉터리 기준 `data/divisions`다. 저장소는 운영용 JSON 파일을 제공하지 않는다. 운영자가 최초 일곱 파일을 모두 준비해야 하며, 파일 누락·읽기 실패·잘못된 JSON 또는 `status`가 `OK`가 아니거나 `result`가 유효하지 않으면 애플리케이션 시작 실패로 처리한다.
+저장 경로는 `app.divisions-directory` 설정으로 변경할 수 있으며 기본값은 실행 디렉터리 기준 `data/divisions`다. 저장소는 `{"status":"OK","result":[]}` 형태의 빈 JSON 일곱 개를 제공한다. 시작 시 API 조회에 성공하면 새 완료 대회를 파일과 메모리 목록에 추가한다. 파일 누락·읽기 실패·잘못된 JSON 또는 `status`가 `OK`가 아니거나 `result`가 유효하지 않으면 애플리케이션 시작 실패로 처리한다.
 
 각 파일은 `status`와 `result`를 가진 Codeforces 응답 형태로 준비한다. 다음은 `Div4.json` 예시다. 필드 이름은 `durationSeconds`, `startTimeSeconds`처럼 camelCase를 사용한다.
 
@@ -224,7 +224,7 @@ Spring MVC가 처리하는 HTTP 오류는 원래 상태와 응답 헤더를 유�
 }
 ```
 
-목록이 비어 있는 유형도 파일은 필요하며 `{"status":"OK","result":[]}`로 준비할 수 있다. 최초 JSON에는 각 유형에 맞는 완료 대회를 제공한다. `.github/fixture/divisions`에는 테스트용 예제가 있으며, 운영용 최신 대회 목록과는 별개다.
+목록이 비어 있는 유형도 파일은 필요하다. 위 예시는 갱신 후 파일의 형태이며, 대회 데이터 자체를 커밋·PR·병합 사항에 포함하지 않는다. 로컬 변경을 숨기는 `skip-worktree` 설정과 데이터 관리 규칙은 [기여 가이드](CONTRIBUTING.md#로컬-대회-데이터-관리)를 따른다. `.github/fixture/divisions`의 테스트용 예제는 실행 중 갱신하는 대회 목록과 별개다.
 
 로컬 목록을 읽은 뒤 시작 시와 매일 낮 12시(`Asia/Seoul`)에 다음 갱신을 수행한다.
 
@@ -235,6 +235,10 @@ Spring MVC가 처리하는 HTTP 오류는 원래 상태와 응답 헤더를 유�
 5. 일곱 JSON 파일을 임시 파일로 저장한 뒤 기존 파일을 교체하며, 실패하면 이전 파일로 되돌린다. 모든 파일 저장에 성공한 뒤 검색용 메모리 목록을 교체한다. 진행 중인 검색은 갱신 전후 중 하나의 목록을 사용한다.
 
 Codeforces 조회나 갱신에 실패하면 로그를 남기고 이전 메모리 목록을 유지한다. 시작 시 API 조회가 실패해도 유효한 로컬 JSON으로 서버를 실행하며 즉시 재시도하지 않는다.
+
+최초의 빈 JSON 상태에서 조회가 실패하면 서버는 대회 목록이 빈 상태로 실행된다. 사용자 제출 이력 조회가 정상적으로 끝나더라도 추천 후보가 없어 `{"contestList":[]}`를 반환한다. 다음 예약 갱신 또는 백엔드 재시작 시 다시 대회 목록 조회를 시도한다.
+
+검색은 메모리에 보관한 목록을 사용하며, 실행 중 JSON 파일을 직접 수정해도 다시 읽지 않는다. 자동 갱신은 기존 메모리 목록을 기준으로 파일을 저장하므로, 수동 보정은 백엔드를 중단한 뒤 수행하고 재시작해 반영한다.
 
 로컬에서 `backend/gradlew`의 `bootRun` 태스크를 사용하면 애플리케이션은 저장소 루트에서 실행되어 루트의 `data/divisions`를 읽는다. IDE에서 메인 클래스를 직접 실행할 때도 작업 디렉터리를 저장소 루트로 지정하거나 `APP_DIVISIONS_DIRECTORY`에 데이터 디렉터리의 절대 경로를 지정한다.
 
