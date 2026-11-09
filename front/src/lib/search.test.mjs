@@ -48,6 +48,10 @@ test('백엔드 오류 코드를 사용자용 메시지로 변환한다', () => 
 		getSearchErrorMessage('CODEFORCES_API_FAILED'),
 		'Codeforces와 연결이 불안정합니다. 잠시 후 다시 시도해 주세요.'
 	);
+	assert.equal(
+		getSearchErrorMessage('SEARCH_TEMPORARILY_UNAVAILABLE'),
+		'검색 서비스를 일시적으로 이용할 수 없습니다. 잠시 후 다시 시도해 주세요.'
+	);
 	assert.equal(getSearchErrorMessage(undefined), '검색 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
 });
 

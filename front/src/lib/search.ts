@@ -45,6 +45,8 @@ export function getSearchErrorMessage(errorCode?: string): string {
 			return '검색 조건을 확인해 주세요.';
 		case 'CODEFORCES_API_FAILED':
 			return 'Codeforces와 연결이 불안정합니다. 잠시 후 다시 시도해 주세요.';
+		case 'SEARCH_TEMPORARILY_UNAVAILABLE':
+			return '검색 서비스를 일시적으로 이용할 수 없습니다. 잠시 후 다시 시도해 주세요.';
 		default:
 			return '검색 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.';
 	}

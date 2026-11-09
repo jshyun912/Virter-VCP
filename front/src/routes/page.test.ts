@@ -155,6 +155,37 @@ test('Codeforces 서버 오류를 결과 영역의 경고 카드로 표시한다
 	);
 });
 
+test('503 안내 후 검색 조건을 유지하고 재검색에 성공하면 오류를 지운다', async () => {
+	const fetchMock = vi.fn()
+		.mockResolvedValueOnce(new Response(JSON.stringify({
+			status: 'FAILED',
+			message: 'SEARCH_TEMPORARILY_UNAVAILABLE'
+		}), { status: 503 }))
+		.mockResolvedValueOnce(successfulResponse());
+	vi.stubGlobal('fetch', fetchMock);
+	const user = userEvent.setup();
+	render(Page);
+
+	await addHandle(user, 'tourist');
+	await user.click(screen.getByRole('checkbox', { name: 'Div. 1' }));
+	await user.click(screen.getByRole('button', { name: '대회 찾기' }));
+
+	expect(await screen.findByRole('alert')).toHaveTextContent(
+		'검색 서비스를 일시적으로 이용할 수 없습니다. 잠시 후 다시 시도해 주세요.'
+	);
+	expect(screen.getByRole('button', { name: 'tourist 삭제' })).toBeInTheDocument();
+	expect(screen.getByRole('checkbox', { name: 'Div. 1' })).not.toBeChecked();
+	expect(screen.getByRole('button', { name: '대회 찾기' })).toBeEnabled();
+	expect(fetchMock).toHaveBeenCalledTimes(1);
+
+	await user.click(screen.getByRole('button', { name: '대회 찾기' }));
+
+	expect(await screen.findByRole('link', { name: /Codeforces Round 2037/ })).toBeInTheDocument();
+	expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+	expect(fetchMock).toHaveBeenCalledTimes(2);
+	expect(fetchMock).toHaveBeenNthCalledWith(2, '/api/search?handle=tourist&dif=31');
+});
+
 test('네트워크 오류를 일반 오류 카드로 표시한다', async () => {
 	vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('Failed to fetch')));
 	const user = userEvent.setup();
