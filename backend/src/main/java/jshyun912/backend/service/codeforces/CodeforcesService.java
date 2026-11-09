@@ -26,8 +26,13 @@ import org.springframework.web.client.RestClientException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.PosixFileAttributeView;
+import java.nio.file.attribute.PosixFileAttributes;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -330,7 +335,8 @@ public class CodeforcesService {
     /** 모든 백업을 준비한 뒤 pending을 남겨, 프로세스 중단 후에도 이전 목록 전체를 복구할 수 있게 한다. */
     private void writeContestLists(Map<Division, List<Contest>> updated) throws IOException {
         Path staging = Files.createTempDirectory(divisionsDirectory, ".refresh-");
-        Path pending = staging.resolve("pending");
+        Path pendingMarker = staging.resolve("pending");
+        boolean pending = false;
         try {
             for (Division division : Division.values()) {
                 Path original = divisionsDirectory.resolve(division.fileName);
@@ -339,23 +345,31 @@ public class CodeforcesService {
                         new CodeforcesResponse<>("OK", null, updated.get(division)));
                 Files.copy(original, staging.resolve(division.fileName + ".bak"), StandardCopyOption.COPY_ATTRIBUTES);
             }
-            Files.writeString(pending, "");
+            for (Division division : Division.values()) {
+                Path original = divisionsDirectory.resolve(division.fileName);
+                verifyFileAttributes(original, staging.resolve(division.fileName));
+                verifyFileAttributes(original, staging.resolve(division.fileName + ".bak"));
+            }
+            pending = true;
+            Files.writeString(pendingMarker, "");
             for (Division division : Division.values()) {
                 Files.move(staging.resolve(division.fileName), divisionsDirectory.resolve(division.fileName),
                         StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
             }
-            Files.delete(pending);
+            Files.delete(pendingMarker);
+            pending = false;
         } catch (IOException | JacksonException failure) {
-            if (Files.exists(pending)) {
+            if (pending) {
                 try {
                     restoreContestLists(staging);
+                    pending = false;
                 } catch (IOException rollbackFailure) {
                     failure.addSuppressed(rollbackFailure);
                 }
             }
             throw failure;
         } finally {
-            if (Files.exists(pending)) {
+            if (pending) {
                 log.error("대회 파일 복구에 실패해 원본 백업을 {}에 보존합니다.", staging);
             } else {
                 deleteStaging(staging);
@@ -366,12 +380,18 @@ public class CodeforcesService {
     /** 파일을 읽거나 개수를 비교하기 전에 미완료 교체를 되돌린다. */
     private void recoverContestLists() throws IOException {
         try (var entries = Files.list(divisionsDirectory)) {
-            for (Path staging : entries.filter(Files::isDirectory)
-                    .filter(path -> path.getFileName().toString().startsWith(".refresh-")).toList()) {
-                if (Files.exists(staging.resolve("pending"))) {
-                    restoreContestLists(staging);
-                    log.warn("중단된 대회 목록 갱신을 이전 버전으로 복구했습니다: {}", staging);
+            for (Path staging : entries.filter(path -> path.getFileName().toString().startsWith(".refresh-")).toList()) {
+                if (!Files.readAttributes(staging, BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS).isDirectory()) {
+                    continue;
                 }
+                try {
+                    Files.readAttributes(staging.resolve("pending"), BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
+                } catch (NoSuchFileException absent) {
+                    deleteStaging(staging);
+                    continue;
+                }
+                restoreContestLists(staging);
+                log.warn("중단된 대회 목록 갱신을 이전 버전으로 복구했습니다: {}", staging);
                 deleteStaging(staging);
             }
         }
@@ -383,10 +403,25 @@ public class CodeforcesService {
             Path restored = staging.resolve(division.fileName + ".restore");
             Files.copy(staging.resolve(division.fileName + ".bak"), restored,
                     StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
+            verifyFileAttributes(staging.resolve(division.fileName + ".bak"), restored);
             Files.move(restored, divisionsDirectory.resolve(division.fileName),
                     StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
         }
-        Files.delete(staging.resolve("pending"));
+        Files.deleteIfExists(staging.resolve("pending"));
+    }
+
+    /** COPY_ATTRIBUTES가 소유권 복사 실패를 무시할 수 있어 실제 교체 전에 보존 여부를 확인한다. */
+    private void verifyFileAttributes(Path original, Path copied) throws IOException {
+        var originalView = Files.getFileAttributeView(original, PosixFileAttributeView.class);
+        if (originalView == null) {
+            return;
+        }
+        var expected = originalView.readAttributes();
+        var actual = Files.readAttributes(copied, PosixFileAttributes.class);
+        if (!expected.owner().equals(actual.owner()) || !expected.group().equals(actual.group())
+                || !expected.permissions().equals(actual.permissions())) {
+            throw new IOException("대회 파일의 소유자·그룹·접근 권한을 보존하지 못했습니다: " + original + " -> " + copied);
+        }
     }
 
     /** 커밋이나 복구가 끝난 임시 파일의 정리 실패는 완료된 갱신을 되돌리지 않는다. */

@@ -19,6 +19,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermissions;
@@ -466,6 +467,35 @@ class ContestListRefreshIntegrationTest {
                 assertFalse(Files.exists(staging));
                 server.verify();
             }
+
+            @ParameterizedTest
+            @ValueSource(strings = {"---------", "r--------"})
+            @DisplayName("pending의 존재 여부를 확인할 권한이 없으면 백업을 남기고 시작을 거부한다")
+            void thenRejectsUnknownRecoveryState(String permissions) throws IOException {
+                // Given
+                assumeTrue(Files.getFileStore(staging).supportsFileAttributeView("posix"));
+                var originalPermissions = Files.getPosixFilePermissions(staging);
+                Map<String, String> interruptedFiles = readAllFiles();
+                Files.setPosixFilePermissions(staging, PosixFilePermissions.fromString(permissions));
+                try {
+                    assumeTrue(!Files.isExecutable(staging), "실행 사용자가 디렉터리 권한을 우회하면 제외한다");
+
+                    // When
+                    ApiException exception = assertThrows(ApiException.class, service::initContestList);
+
+                    // Then
+                    assertLoadFailure(exception);
+                    assertTrue(exception.getCause() instanceof AccessDeniedException);
+                    assertEquals(interruptedFiles, readAllFiles());
+                    server.verify();
+                } finally {
+                    Files.setPosixFilePermissions(staging, originalPermissions);
+                }
+                assertTrue(Files.exists(staging.resolve("pending")));
+                for (String fileName : DIVISION_FILES) {
+                    assertEquals(originalFiles.get(fileName), Files.readString(staging.resolve(fileName + ".bak")));
+                }
+            }
         }
 
         @Nested
@@ -651,6 +681,36 @@ class ContestListRefreshIntegrationTest {
                 assertEquals(List.of(90, 100, 101), savedIds("Div2.json"));
                 assertEquals(owner, Files.getOwner(originalFile));
                 assertEquals(permissions, Files.getPosixFilePermissions(originalFile));
+                server.verify();
+            }
+
+            @ParameterizedTest
+            @ValueSource(strings = {"Div2.json", "Div2.json.bak"})
+            @DisplayName("준비 파일이나 백업의 속성이 원본과 다르면 교체 전에 갱신을 중단한다")
+            void thenRejectsMismatchedPreparedAttributes(String alteredFile) throws IOException {
+                // Given
+                assumeTrue(Files.getFileStore(divisionsDirectory).supportsFileAttributeView("posix"));
+                Map<String, String> originalFiles = readAllFiles();
+                var originalPermissions = Files.getPosixFilePermissions(divisionsDirectory.resolve("Div2.json"));
+                var changedPermissions = PosixFilePermissions.fromString(
+                        originalPermissions.equals(PosixFilePermissions.fromString("rw-------"))
+                                ? "rw-r--r--" : "rw-------");
+                willAnswer(invocation -> {
+                    invocation.callRealMethod();
+                    File stagedFile = invocation.getArgument(0);
+                    if (stagedFile.getName().equals("others.json")) {
+                        Files.setPosixFilePermissions(stagedFile.toPath().resolveSibling(alteredFile), changedPermissions);
+                    }
+                    return null;
+                }).given(jsonMapper).writeValue(any(File.class), any());
+                expectResponse(successfulContestResponse(UPDATED_CONTESTS));
+
+                // When
+                assertDoesNotThrow(service::refreshContestList);
+
+                // Then
+                assertEquals(originalFiles, readAllFiles());
+                assertEquals(List.of(90), candidateIds(4));
                 server.verify();
             }
 
