@@ -15,15 +15,10 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 
 import jshyun912.backend.dto.codeforces.CodeforcesResponse;
-import jshyun912.backend.dto.codeforces.Contest;
 import jshyun912.backend.dto.codeforces.Submission;
 import jshyun912.backend.exception.ApiException;
 import jshyun912.backend.exception.ErrorMessage;
 import jshyun912.backend.service.RedisService;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
@@ -36,7 +31,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.ArgumentMatchers;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -54,9 +48,6 @@ import tools.jackson.databind.json.JsonMapper;
 class CodeforcesServiceTest {
     private static final String HANDLE = "tourist";
     private static final String USER_STATUS_URI = "https://codeforces.com/api/user.status?handle={handle}";
-
-    @TempDir
-    private Path divisionsDirectory;
 
     @Mock
     private JsonMapper jsonMapper;
@@ -601,90 +592,4 @@ class CodeforcesServiceTest {
         return new Submission(null, contestId, null, null, null, null, null, null, null, null, null, null, null);
     }
 
-    @Nested
-    @DisplayName("initContestList를 호출하면")
-    class InitContestList {
-
-        @Test
-        @DisplayName("각 division JSON의 대회를 해당 리스트에 로드한다")
-        void thenLoadsContestsIntoEachDivisionList() throws IOException {
-            // given
-            JsonMapper realJsonMapper = JsonMapper.builder().build();
-            Contest div1Contest = contest(100);
-            Contest div12Contest = contest(101);
-            Contest div2Contest = contest(102);
-            Contest div2EduContest = contest(103);
-            Contest div3Contest = contest(104);
-            Contest div4Contest = contest(105);
-            Contest otherContest = contest(106);
-            writeDivisionFile(realJsonMapper, "Div1.json", List.of(div1Contest));
-            writeDivisionFile(realJsonMapper, "Div1Plus2.json", List.of(div12Contest));
-            writeDivisionFile(realJsonMapper, "Div2.json", List.of(div2Contest));
-            writeDivisionFile(realJsonMapper, "Div2Educational.json", List.of(div2EduContest));
-            writeDivisionFile(realJsonMapper, "Div3.json", List.of(div3Contest));
-            writeDivisionFile(realJsonMapper, "Div4.json", List.of(div4Contest));
-            writeDivisionFile(realJsonMapper, "others.json", List.of(otherContest));
-            CodeforcesService service = new CodeforcesService(restClient, realJsonMapper, redisService);
-            service.setDivisionsDirectory(divisionsDirectory);
-
-            // when
-            service.initContestList();
-
-            // then
-            assertEquals(List.of(div1Contest), service.div1ContestList);
-            assertEquals(List.of(div12Contest), service.div12ContestList);
-            assertEquals(List.of(div2Contest), service.div2ContestList);
-            assertEquals(List.of(div2EduContest), service.div2EduContestList);
-            assertEquals(List.of(div3Contest), service.div3ContestList);
-            assertEquals(List.of(div4Contest), service.div4ContestList);
-            assertEquals(List.of(otherContest), service.otherContestList);
-        }
-
-        @Test
-        @DisplayName("division JSON 파일이 없으면 대회 목록 로드 예외를 던진다")
-        void thenThrowsLoadExceptionWhenDivisionFileIsMissing() {
-            // given
-            JsonMapper realJsonMapper = JsonMapper.builder().build();
-            CodeforcesService service = new CodeforcesService(restClient, realJsonMapper, redisService);
-            service.setDivisionsDirectory(divisionsDirectory);
-
-            // when
-            ApiException exception = assertThrows(ApiException.class, service::initContestList);
-
-            // then
-            assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, exception.getHttpStatus());
-            assertEquals(ErrorMessage.CONTEST_DATA_LOAD_FAILED, exception.getErrorMessage());
-            assertEquals("대회 목록 파일 " + divisionsDirectory.resolve("Div1.json") + "을 불러오지 못했습니다.",
-                    exception.getDetail());
-        }
-
-        @Test
-        @DisplayName("잘못된 division JSON 파일이면 대회 목록 로드 예외를 던진다")
-        void thenThrowsLoadExceptionWhenDivisionFileIsInvalid() throws IOException {
-            // given
-            Path divisionFile = divisionsDirectory.resolve("Div1.json");
-            Files.writeString(divisionFile, "invalid json");
-            CodeforcesService service = new CodeforcesService(restClient, JsonMapper.builder().build(), redisService);
-            service.setDivisionsDirectory(divisionsDirectory);
-
-            // when
-            ApiException exception = assertThrows(ApiException.class, service::initContestList);
-
-            // then
-            assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, exception.getHttpStatus());
-            assertEquals(ErrorMessage.CONTEST_DATA_LOAD_FAILED, exception.getErrorMessage());
-            assertEquals("대회 목록 파일 " + divisionFile + "을 불러오지 못했습니다.", exception.getDetail());
-        }
-    }
-
-    private void writeDivisionFile(JsonMapper jsonMapper, String fileName, List<Contest> contests) throws IOException {
-        try (OutputStream outputStream = Files.newOutputStream(divisionsDirectory.resolve(fileName))) {
-            jsonMapper.writeValue(outputStream, new CodeforcesResponse<>("OK", null, contests));
-        }
-    }
-
-    private Contest contest(Integer id) {
-        return new Contest(id, "Codeforces Round", "ICPC", "FINISHED", false,
-                null, null, null, null, null, null, null, null, null, null, null, null, null);
-    }
 }

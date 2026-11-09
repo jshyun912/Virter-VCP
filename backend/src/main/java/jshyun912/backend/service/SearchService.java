@@ -7,7 +7,6 @@ import jshyun912.backend.service.codeforces.CodeforcesService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -28,26 +27,7 @@ public class SearchService {
         }
 
         int difficultyMask = request.difficultyMask();
-        List<Contest> candidates = new ArrayList<>();
-
-        if ((difficultyMask & 1) != 0) {
-            candidates.addAll(codeforcesService.div4ContestList);
-        }
-        if ((difficultyMask & 2) != 0) {
-            candidates.addAll(codeforcesService.div3ContestList);
-        }
-        if ((difficultyMask & 4) != 0) {
-            candidates.addAll(codeforcesService.div2ContestList);
-        }
-        if ((difficultyMask & 8) != 0) {
-            candidates.addAll(codeforcesService.div2EduContestList);
-        }
-        if ((difficultyMask & 16) != 0) {
-            candidates.addAll(codeforcesService.div12ContestList);
-        }
-        if ((difficultyMask & 32) != 0) {
-            candidates.addAll(codeforcesService.div1ContestList);
-        }
+        List<Contest> candidates = codeforcesService.getContestCandidates(difficultyMask);
 
         candidates.removeIf(contest -> contests.contains(contest.id()));
         Collections.shuffle(candidates);

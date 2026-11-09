@@ -40,7 +40,7 @@ services:
       - type: bind
         source: ./data/divisions
         target: /app/data/divisions
-        read_only: true
+        read_only: false
         bind:
           create_host_path: false
     networks:

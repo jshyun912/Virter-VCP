@@ -11,8 +11,8 @@
 | Frontend | SvelteKit / Nginx | 사용자 입력, 추천 결과 표시, 백엔드 내부 프록시 |
 | Backend | Spring Boot 4 / Java 25 | 검색 API, 헬스 API와 Codeforces 연동 |
 | Cache | Redis 8.10.3 | 핸들별 참여 대회 ID의 2시간 캐시와 분산 락 |
-| 외부 API | Codeforces API | 사용자 제출 이력 조회 |
-| 운영 입력 파일 | `data/divisions/*.json` | 운영자가 관리하는 Div별 완료 대회 목록 |
+| 외부 API | Codeforces API | 사용자 제출 이력과 완료 대회 목록 조회 |
+| 대회 목록 파일 | `data/divisions/*.json` | 저장소의 빈 목록에서 시작해 자동 갱신하는 Div별 완료 대회 목록 |
 
 ## 디렉터리 개요
 
@@ -28,7 +28,7 @@ backend/                       Spring Boot 애플리케이션
     dto/codeforces/            Codeforces API 응답 DTO
     config/                    RestClient 설정
     exception/                 API 예외와 공통 오류 응답 처리
-data/divisions/                운영자가 준비하는 Div별 대회 목록 JSON (저장소에 미포함)
+data/divisions/                빈 JSON 7개를 Git으로 제공하며 실행 중 대회 목록을 추가
 ```
 
 ## Backend 요청 흐름
@@ -50,7 +50,7 @@ SearchService
 SearchResponse { contestList }
 ```
 
-`CodeforcesService`는 `RedisService`로 캐시를 읽고, 캐시가 없을 때 `RestClient`로 `user.status`를 호출한다. 대회 목록은 Codeforces에서 자동 갱신하지 않고 운영자가 제공한 JSON만 읽는다.
+`CodeforcesService`는 `RedisService`로 캐시를 읽고, 캐시가 없을 때 `RestClient`로 `user.status`를 호출한다. 대회 목록은 최초 JSON을 읽은 뒤 시작 시와 매일 한국 시간 낮 12시에 Codeforces에서 갱신하며, 검색은 메모리에 보관한 목록을 사용한다.
 
 ### 검색 API
 
@@ -130,7 +130,7 @@ Redis도 같은 Compose의 app 네트워크에 참가하며 6379를 호스트에
 
 백엔드는 Java 25 JDK 빌드 단계에서 Gradle로 `bootJar`를 실행하고, 실행 단계에는 Java 25 JRE와 `app.jar`만 복사한다. 프론트엔드는 Node.js 24 빌드 단계에서 `npm ci`와 `npm run build`를 실행하고, 생성된 정적 파일을 Nginx 이미지에 복사한다. Docker로 실행할 때 호스트에 Java·Node.js를 설치하거나 JAR·프론트엔드 빌드를 미리 만들 필요는 없다.
 
-대회 JSON은 이미지에 포함하지 않고 실행 중 백엔드에 읽기 전용으로 마운트한다. 파일을 바꾸면 `docker compose restart backend`로 메모리 목록을 다시 읽는다. 프론트엔드는 이 JSON을 직접 읽지 않는다.
+대회 JSON은 이미지에 포함하지 않고 실행 중 백엔드에 읽기·쓰기 가능하게 마운트한다. 호스트의 디렉터리와 파일에도 백엔드가 쓸 수 있는 권한이 필요하다. 자동 갱신은 파일 저장 후 메모리 목록에 반영하므로 재시작할 필요가 없다. 프론트엔드는 이 JSON을 직접 읽지 않는다.
 
 ## 헬스 API와 Actuator
 
@@ -191,19 +191,19 @@ Spring MVC가 처리하는 HTTP 오류는 원래 상태와 응답 헤더를 유�
 
 ## Div 데이터 초기화
 
-애플리케이션 시작 시 `CodeforcesService.initContestList()`이 다음 파일을 읽어 메모리 목록을 채운다.
+애플리케이션 시작 시 중단된 갱신을 복구한 뒤 다음 파일을 검증하고 검색용 메모리 목록을 채운다.
 
-| 파일 | 메모리 목록 |
+| 파일 | 대회 유형 |
 | --- | --- |
-| `Div1.json` | `div1ContestList` |
-| `Div1Plus2.json` | `div12ContestList` |
-| `Div2.json` | `div2ContestList` |
-| `Div2Educational.json` | `div2EduContestList` |
-| `Div3.json` | `div3ContestList` |
-| `Div4.json` | `div4ContestList` |
-| `others.json` | `otherContestList` |
+| `Div1.json` | Div. 1 |
+| `Div1Plus2.json` | Div. 1 + Div. 2 |
+| `Div2.json` | Div. 2 |
+| `Div2Educational.json` | Div. 2 Educational |
+| `Div3.json` | Div. 3 |
+| `Div4.json` | Div. 4 |
+| `others.json` | 기타 대회 |
 
-저장 경로는 `app.divisions-directory` 설정으로 변경할 수 있으며 기본값은 실행 디렉터리 기준 `data/divisions`다. 저장소는 이 디렉터리나 JSON 파일을 제공하지 않는다. 운영자가 일곱 파일을 모두 준비해야 하며, 파일 누락 또는 역직렬화 실패는 애플리케이션 시작 실패로 처리한다.
+저장 경로는 `app.divisions-directory` 설정으로 변경할 수 있으며 기본값은 실행 디렉터리 기준 `data/divisions`다. 저장소는 `{"status":"OK","result":[]}` 형태의 빈 JSON 일곱 개를 제공한다. 시작 시 API 조회에 성공하면 새 완료 대회를 파일과 메모리 목록에 추가한다. 파일 누락·읽기 실패·잘못된 JSON, 유효하지 않은 응답 형식, `FINISHED`가 아닌 로컬 대회 또는 로컬 ID 중복이 있으면 애플리케이션 시작 실패로 처리한다. ID 중복은 각 파일 안과 일곱 파일 사이에서 모두 검사하며 오류에 ID와 파일명을 기록한다. API 응답에는 미종료 대회도 포함되므로, 완료 상태 강제 검증은 로컬 파일에만 적용한다.
 
 각 파일은 `status`와 `result`를 가진 Codeforces 응답 형태로 준비한다. 다음은 `Div4.json` 예시다. 필드 이름은 `durationSeconds`, `startTimeSeconds`처럼 camelCase를 사용한다.
 
@@ -224,11 +224,33 @@ Spring MVC가 처리하는 HTTP 오류는 원래 상태와 응답 헤더를 유�
 }
 ```
 
-목록이 비어 있는 유형도 파일은 필요하며 `{"status":"OK","result":[]}`로 준비할 수 있다. 운영자는 각 유형에 맞는 완료 대회를 제공한다. 로딩 시 유형이나 완료 여부를 자동으로 분류하지 않는다. `.github/fixture/divisions`에는 테스트용 예제가 있으며, 운영용 최신 대회 목록과는 별개다.
+목록이 비어 있는 유형도 파일은 필요하다. 위 예시는 갱신 후 파일의 형태이며, 대회 데이터 자체를 커밋·PR·병합 사항에 포함하지 않는다. 로컬 변경을 숨기는 `skip-worktree` 설정과 데이터 관리 규칙은 [기여 가이드](CONTRIBUTING.md#로컬-대회-데이터-관리)를 따른다. `.github/fixture/divisions`의 테스트용 예제는 실행 중 갱신하는 대회 목록과 별개다.
+
+로컬 목록을 읽은 뒤 시작 시와 매일 낮 12시(`Asia/Seoul`)에 다음 갱신을 수행한다.
+
+1. 인증 없이 `GET /api/contest.list?gym=false`를 한 번 호출한다. Gym과 아직 종료되지 않은 대회를 제외하고 `phase`가 `FINISHED`인 대회만 사용한다.
+2. `others.json`을 포함한 일곱 파일의 대회 수 합계와 완료 대회 수가 같으면 갱신을 끝낸다.
+3. 조회한 완료 대회 수가 더 적으면 갱신 오류로 처리해 갱신을 중단하고 기존 JSON 파일과 메모리 목록을 유지한다.
+4. 더 많으면 일곱 파일 전체의 ID와 비교해 없는 ID의 새 완료 대회만 제목으로 분류하고 해당 목록 뒤에 추가한다. 기존 대회의 필드 값·분류·순서를 유지하며 API 응답에 없는 로컬 대회도 삭제하지 않는다. Educational Div. 2와 Div. 1 + Div. 2를 단일 Div보다 먼저 판별하며, 어느 유형에도 해당하지 않으면 `others.json`에 넣는다.
+5. 원본 속성을 복사한 임시 파일에 새 JSON을 기록해 Linux Docker에서도 기존 소유자·그룹·접근 권한을 보존한다. POSIX 환경에서는 일곱 준비 파일과 백업의 속성을 원본과 비교하고, 불일치하면 교체 전에 갱신을 중단한다. 준비가 끝나면 `.refresh-*/pending` 표시를 남기고 기존 파일을 교체한다. 모든 교체가 끝나면 표시를 지우고 검색용 메모리 목록을 교체한다. 진행 중인 검색은 갱신 전후 중 하나의 목록을 사용한다.
+
+파일 교체에 실패하면 원본 백업으로 일곱 파일 전체를 복구한다. 프로세스 강제 종료 등으로 `pending` 표시가 남으면 다음 시작 시 로컬 JSON을 읽기 전에 복구하며, 이후 갱신에서도 개수 비교 전에 확인한다. 복구는 백업을 복사해 수행하고 POSIX 속성을 비교한 뒤 교체하므로, 소유자·그룹·접근 권한이 달라지면 해당 파일을 교체하지 않는다. 복구 중 다시 중단되어도 재시도할 수 있도록 복구를 완료하기 전에는 표시와 백업을 삭제하지 않는다. 복구 표시 조회에서 `NoSuchFileException`만 부재로 처리하며, 접근 거부 등 다른 오류는 전파한다. 시작 시 상태를 확인하거나 복구할 수 없으면 서버를 실행하지 않는다. 표시가 없다고 확인된 임시 디렉터리만 정리한다.
+
+초기 API 갱신을 시도한 뒤에도 완료 대회가 전체 0개라면 `CONTEST_DATA_LOAD_FAILED`로 서버 시작에 실패한다. 기존 대회가 있으면 Codeforces 조회나 갱신에 실패해도 로그를 남기고 이전 목록으로 계속 실행하며 즉시 재시도하지 않는다. Compose의 `restart: unless-stopped`는 시작 실패 시 자동 재시작하므로 설치 직전에 Codeforces 상태를 확인한다.
+
+검색은 메모리에 보관한 목록을 사용하며, 실행 중 JSON 파일을 직접 수정해도 다시 읽지 않는다. 자동 갱신은 기존 메모리 목록을 기준으로 파일을 저장하므로, 수동 보정은 백엔드를 중단한 뒤 수행하고 재시작해 반영한다.
 
 로컬에서 `backend/gradlew`의 `bootRun` 태스크를 사용하면 애플리케이션은 저장소 루트에서 실행되어 루트의 `data/divisions`를 읽는다. IDE에서 메인 클래스를 직접 실행할 때도 작업 디렉터리를 저장소 루트로 지정하거나 `APP_DIVISIONS_DIRECTORY`에 데이터 디렉터리의 절대 경로를 지정한다.
 
-Docker 배포에서는 호스트의 `data/divisions`를 `/app/data/divisions`에 읽기 전용으로 마운트하고 `APP_DIVISIONS_DIRECTORY=/app/data/divisions`를 지정한다.
+Docker 배포에서는 호스트의 `data/divisions`를 `/app/data/divisions`에 읽기·쓰기 가능하게 마운트하고 `APP_DIVISIONS_DIRECTORY=/app/data/divisions`를 지정한다.
+
+### 제목 파싱을 사용하는 이유와 한계
+
+[Codeforces 공식 API의 `Contest` 객체](https://codeforces.com/apiHelp/objects#Contest)에는 Div. 1·2·3·4 또는 Educational 여부를 명시하는 전용 필드가 없다. `type`은 `CF`·`IOI`·`ICPC`와 같은 채점 방식을 뜻하므로 디비전 구분에 사용할 수 없다. 정확한 구분을 위해서는 대회 상세 페이지나 공식 공지의 참가 대상·레이팅 조건 등을 추가로 확인해야 한다.
+
+그러나 [Codeforces의 `robots.txt`](https://codeforces.com/robots.txt)는 대회 상세 페이지가 속한 `/contest` 경로의 크롤링을 제한한다. 이 프로젝트는 상세 페이지를 자동 수집하는 대신 공식 API가 반환하는 대회 제목(`name`)에서 Div 표기와 `Educational` 문자열을 파싱해 분류한다. 이는 공식 디비전 정보를 직접 읽는 방식이 아니라 제목을 근거로 추정하는 방식이므로 정확성을 보장하지 않는다.
+
+특히 오래된 대회는 제목 표기가 현재와 다르거나 디비전 표기가 빠져 있어 오분류될 수 있다. 예를 들어 Educational 대회라도 제목에 Div. 2 표기가 없으면 현재 규칙에서는 `others.json`으로 분류된다. 자동 갱신은 새 ID만 추가하고 기존 항목을 재분류하지 않으므로, 정확한 분류가 필요한 과거 대회는 상세 정보를 직접 확인해 로컬 JSON의 분류를 관리해야 한다.
 
 ## `dif` 비트마스크 계약
 
@@ -244,11 +266,11 @@ Docker 배포에서는 호스트의 `data/divisions`를 `/app/data/divisions`에
 | 32 | Div. 1 |
 | 64 | 기타 대회 (현재 미사용) |
 
-비트 값 `64`는 `otherContestList`를 위한 예약 값이다. 현재 검색 추천 로직은 이 비트를 사용하지 않는다.
+비트 값 `64`는 기타 대회 목록을 위한 예약 값이다. 현재 검색 추천 로직은 이 비트를 사용하지 않는다.
 
 ## 현재 제약
 
+- 파일 복구는 단일 백엔드 프로세스 중단을 대상으로 한다. 여러 인스턴스의 같은 디렉터리 동시 갱신이나 전원 차단 시 디스크 동기화까지 보장하지 않는다.
 - Codeforces API의 전역 호출 간격 제한과 자동 재시도는 구현하지 않았다. Redis 장애 시 동시 1건 제한만으로 전체 호출 빈도를 보장하지는 않는다.
 - 프론트엔드의 `SEARCH_TEMPORARILY_UNAVAILABLE` 전용 안내 문구는 추후 추가한다. 현재는 일반 검색 오류 문구를 표시한다.
 - 추천은 균등 무작위이며 난이도·최근성·대회 길이는 고려하지 않는다.
-- 대회 목록 JSON은 운영자가 직접 갱신해야 한다.
