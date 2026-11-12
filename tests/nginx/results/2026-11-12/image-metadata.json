@@ -1,0 +1,35 @@
+{
+  "before": {
+    "frontImageId": "sha256:99f41205c460050284c4bd169c9576275c0f7534601e88dc1bdb68ae69e57092",
+    "nginxVersion": "nginx version: nginx/1.30.6",
+    "upstreamPortRange": "32768\t60999"
+  },
+  "after": {
+    "frontImageId": "sha256:cc0928c19784956f10248e5af9fdab8553380d312f9b8621ffe99198055f5973",
+    "nginxVersion": "nginx version: nginx/1.30.6",
+    "upstreamPortRange": "32768\t60999"
+  },
+  "comparison": {
+    "nginxBaseDigest": [
+      "nginx@sha256:583b7f2fce1cdb8da5ad5c39ebd3c33b98b87d493190e548bdee1fa8c619c311"
+    ],
+    "baseLayersIdentical": true,
+    "allFilesystemLayersIdentical": true,
+    "beforeLabels": {
+      "com.docker.compose.project": "virter-load-192b5931",
+      "com.docker.compose.service": "front",
+      "com.docker.compose.version": "5.6.1",
+      "maintainer": "NGINX Docker Maintainers <docker-maint@nginx.com>"
+    },
+    "afterLabels": {
+      "com.docker.compose.project": "virter-load-c34e0c23",
+      "com.docker.compose.service": "front",
+      "com.docker.compose.version": "5.6.1",
+      "maintainer": "NGINX Docker Maintainers <docker-maint@nginx.com>"
+    }
+  },
+  "configSha256": {
+    "before": "d38bff7b01454e9e939e4e887901f6d1f62001eff21c93ee2c0ac9a74c1093c2",
+    "after": "3708ebde6bbe9c8a3fed19d4e699178e488b92c759bda56e8bc38b81b444638f"
+  }
+}

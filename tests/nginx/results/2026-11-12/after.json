@@ -1,0 +1,4411 @@
+{
+  "project": "virter-load-c34e0c23",
+  "startedAt": "2026-11-12T11:16:15.051Z",
+  "durationSeconds": 30,
+  "thinkMs": 0,
+  "host": {
+    "logicalCpus": 16,
+    "memoryGiB": 31.26424789428711
+  },
+  "environment": "One backend, real Redis and front Nginx; isolated HTTP mock; generator shares host",
+  "passed": true,
+  "scenarios": [
+    {
+      "name": "cache-hit",
+      "concurrency": 1,
+      "elapsedMs": 30000,
+      "requests": 71614,
+      "statuses": {
+        "200": 71614
+      },
+      "requestsPerSecond": 2387.13,
+      "medianMs": 0.38,
+      "p95Ms": 0.59,
+      "maxMs": 7.72,
+      "codeforcesCalls": 0,
+      "maxConcurrentCodeforcesCalls": 0,
+      "callsByHandle": {},
+      "redisCommandDelta": 214902,
+      "invalidResponses": 0,
+      "upstreamTimeWaitSockets": 157,
+      "resources": [
+        {
+          "at": 1794482182776,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 0.15,
+          "memoryUsage": "352.3MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482182776,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 2.32,
+          "memoryUsage": "6.301MiB / 128MiB"
+        },
+        {
+          "at": 1794482183274,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 0.15,
+          "memoryUsage": "352.3MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482183274,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 2.32,
+          "memoryUsage": "6.301MiB / 128MiB"
+        },
+        {
+          "at": 1794482183775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 212.24,
+          "memoryUsage": "370.8MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482183775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 8.03,
+          "memoryUsage": "6.434MiB / 128MiB"
+        },
+        {
+          "at": 1794482184274,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 212.24,
+          "memoryUsage": "370.8MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482184274,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 8.03,
+          "memoryUsage": "6.434MiB / 128MiB"
+        },
+        {
+          "at": 1794482184775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 196.41,
+          "memoryUsage": "392.3MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482184775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 8.33,
+          "memoryUsage": "5.973MiB / 128MiB"
+        },
+        {
+          "at": 1794482185274,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 196.41,
+          "memoryUsage": "392.3MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482185274,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 8.33,
+          "memoryUsage": "5.973MiB / 128MiB"
+        },
+        {
+          "at": 1794482185775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 261.12,
+          "memoryUsage": "423.3MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482185775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 9.02,
+          "memoryUsage": "6.266MiB / 128MiB"
+        },
+        {
+          "at": 1794482186275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 261.12,
+          "memoryUsage": "423.3MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482186275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 9.02,
+          "memoryUsage": "6.266MiB / 128MiB"
+        },
+        {
+          "at": 1794482186775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 213.36,
+          "memoryUsage": "442.1MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482186775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 9.61,
+          "memoryUsage": "6.602MiB / 128MiB"
+        },
+        {
+          "at": 1794482187274,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 213.36,
+          "memoryUsage": "442.1MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482187274,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 9.61,
+          "memoryUsage": "6.602MiB / 128MiB"
+        },
+        {
+          "at": 1794482187775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 161.27,
+          "memoryUsage": "444.6MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482187775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 10.45,
+          "memoryUsage": "6.344MiB / 128MiB"
+        },
+        {
+          "at": 1794482188275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 161.27,
+          "memoryUsage": "444.6MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482188275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 10.45,
+          "memoryUsage": "6.344MiB / 128MiB"
+        },
+        {
+          "at": 1794482188774,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 132.61,
+          "memoryUsage": "453.9MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482188774,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 10.59,
+          "memoryUsage": "7.012MiB / 128MiB"
+        },
+        {
+          "at": 1794482189275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 132.61,
+          "memoryUsage": "453.9MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482189275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 10.59,
+          "memoryUsage": "7.012MiB / 128MiB"
+        },
+        {
+          "at": 1794482189775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 62.09,
+          "memoryUsage": "455.1MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482189775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 10.75,
+          "memoryUsage": "6.246MiB / 128MiB"
+        },
+        {
+          "at": 1794482190275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 62.09,
+          "memoryUsage": "455.1MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482190275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 10.75,
+          "memoryUsage": "6.246MiB / 128MiB"
+        },
+        {
+          "at": 1794482190774,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 57.27,
+          "memoryUsage": "454.3MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482190774,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 11.25,
+          "memoryUsage": "7.117MiB / 128MiB"
+        },
+        {
+          "at": 1794482191275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 57.27,
+          "memoryUsage": "454.3MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482191275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 11.25,
+          "memoryUsage": "7.117MiB / 128MiB"
+        },
+        {
+          "at": 1794482191775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 45.45,
+          "memoryUsage": "454.2MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482191775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 11.56,
+          "memoryUsage": "7.148MiB / 128MiB"
+        },
+        {
+          "at": 1794482192274,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 45.45,
+          "memoryUsage": "454.2MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482192274,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 11.56,
+          "memoryUsage": "7.148MiB / 128MiB"
+        },
+        {
+          "at": 1794482192774,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 44.94,
+          "memoryUsage": "454.7MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482192774,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 11.37,
+          "memoryUsage": "6.305MiB / 128MiB"
+        },
+        {
+          "at": 1794482193275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 44.94,
+          "memoryUsage": "454.7MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482193275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 11.37,
+          "memoryUsage": "6.305MiB / 128MiB"
+        },
+        {
+          "at": 1794482193775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 51.05,
+          "memoryUsage": "454.5MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482193775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 11.59,
+          "memoryUsage": "7.051MiB / 128MiB"
+        },
+        {
+          "at": 1794482194274,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 51.05,
+          "memoryUsage": "454.5MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482194274,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 11.59,
+          "memoryUsage": "7.051MiB / 128MiB"
+        },
+        {
+          "at": 1794482194775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 47.61,
+          "memoryUsage": "454.2MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482194775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 11.8,
+          "memoryUsage": "5.668MiB / 128MiB"
+        },
+        {
+          "at": 1794482195274,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 47.61,
+          "memoryUsage": "454.2MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482195274,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 11.8,
+          "memoryUsage": "5.668MiB / 128MiB"
+        },
+        {
+          "at": 1794482195774,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 63.53,
+          "memoryUsage": "455.1MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482195774,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 11.47,
+          "memoryUsage": "7.57MiB / 128MiB"
+        },
+        {
+          "at": 1794482196275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 63.53,
+          "memoryUsage": "455.1MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482196275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 11.47,
+          "memoryUsage": "7.57MiB / 128MiB"
+        },
+        {
+          "at": 1794482196774,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 54.63,
+          "memoryUsage": "456MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482196774,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 11.43,
+          "memoryUsage": "7.25MiB / 128MiB"
+        },
+        {
+          "at": 1794482197275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 54.63,
+          "memoryUsage": "456MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482197275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 11.43,
+          "memoryUsage": "7.25MiB / 128MiB"
+        },
+        {
+          "at": 1794482197774,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 44.3,
+          "memoryUsage": "454.6MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482197774,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 11.49,
+          "memoryUsage": "7.484MiB / 128MiB"
+        },
+        {
+          "at": 1794482198275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 44.3,
+          "memoryUsage": "454.6MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482198275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 11.49,
+          "memoryUsage": "7.484MiB / 128MiB"
+        },
+        {
+          "at": 1794482198774,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 50.01,
+          "memoryUsage": "455.6MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482198774,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 11.49,
+          "memoryUsage": "8.195MiB / 128MiB"
+        },
+        {
+          "at": 1794482199275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 50.01,
+          "memoryUsage": "455.6MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482199275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 11.49,
+          "memoryUsage": "8.195MiB / 128MiB"
+        },
+        {
+          "at": 1794482199775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 45.28,
+          "memoryUsage": "454.6MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482199775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 9.84,
+          "memoryUsage": "10.95MiB / 128MiB"
+        },
+        {
+          "at": 1794482200274,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 45.28,
+          "memoryUsage": "454.6MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482200274,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 9.84,
+          "memoryUsage": "10.95MiB / 128MiB"
+        },
+        {
+          "at": 1794482200775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 46.66,
+          "memoryUsage": "454.4MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482200775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 10.78,
+          "memoryUsage": "6.871MiB / 128MiB"
+        },
+        {
+          "at": 1794482201275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 46.66,
+          "memoryUsage": "454.4MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482201275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 10.78,
+          "memoryUsage": "6.871MiB / 128MiB"
+        },
+        {
+          "at": 1794482201775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 45.14,
+          "memoryUsage": "455.3MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482201775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 11.52,
+          "memoryUsage": "7.188MiB / 128MiB"
+        },
+        {
+          "at": 1794482202274,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 45.14,
+          "memoryUsage": "455.3MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482202274,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 11.52,
+          "memoryUsage": "7.188MiB / 128MiB"
+        },
+        {
+          "at": 1794482202775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 43.96,
+          "memoryUsage": "455MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482202775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 11.47,
+          "memoryUsage": "7.09MiB / 128MiB"
+        },
+        {
+          "at": 1794482203274,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 43.96,
+          "memoryUsage": "455MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482203274,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 11.47,
+          "memoryUsage": "7.09MiB / 128MiB"
+        },
+        {
+          "at": 1794482203774,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 44.51,
+          "memoryUsage": "455.1MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482203774,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 11.69,
+          "memoryUsage": "6.691MiB / 128MiB"
+        },
+        {
+          "at": 1794482204275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 44.51,
+          "memoryUsage": "455.1MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482204275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 11.69,
+          "memoryUsage": "6.691MiB / 128MiB"
+        },
+        {
+          "at": 1794482204774,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 44.46,
+          "memoryUsage": "455.1MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482204774,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 11.48,
+          "memoryUsage": "6.406MiB / 128MiB"
+        },
+        {
+          "at": 1794482205275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 44.46,
+          "memoryUsage": "455.1MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482205275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 11.48,
+          "memoryUsage": "6.406MiB / 128MiB"
+        },
+        {
+          "at": 1794482205774,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 45.1,
+          "memoryUsage": "455.4MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482205774,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 11.58,
+          "memoryUsage": "6.406MiB / 128MiB"
+        },
+        {
+          "at": 1794482206275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 45.1,
+          "memoryUsage": "455.4MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482206275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 11.58,
+          "memoryUsage": "6.406MiB / 128MiB"
+        },
+        {
+          "at": 1794482206774,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 44.45,
+          "memoryUsage": "454.5MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482206774,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 11.44,
+          "memoryUsage": "6.422MiB / 128MiB"
+        },
+        {
+          "at": 1794482207275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 44.45,
+          "memoryUsage": "454.5MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482207275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 11.44,
+          "memoryUsage": "6.422MiB / 128MiB"
+        },
+        {
+          "at": 1794482207774,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 44.24,
+          "memoryUsage": "455.4MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482207774,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 11.35,
+          "memoryUsage": "6.461MiB / 128MiB"
+        },
+        {
+          "at": 1794482208275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 44.24,
+          "memoryUsage": "455.4MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482208275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 11.35,
+          "memoryUsage": "6.461MiB / 128MiB"
+        },
+        {
+          "at": 1794482208775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 44.21,
+          "memoryUsage": "454.7MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482208775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 11.36,
+          "memoryUsage": "5.93MiB / 128MiB"
+        },
+        {
+          "at": 1794482209274,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 44.21,
+          "memoryUsage": "454.7MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482209274,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 11.36,
+          "memoryUsage": "5.93MiB / 128MiB"
+        },
+        {
+          "at": 1794482209775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 44.28,
+          "memoryUsage": "455.5MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482209775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 11.55,
+          "memoryUsage": "6.434MiB / 128MiB"
+        },
+        {
+          "at": 1794482210274,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 44.28,
+          "memoryUsage": "455.5MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482210274,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 11.55,
+          "memoryUsage": "6.434MiB / 128MiB"
+        },
+        {
+          "at": 1794482210777,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 45.41,
+          "memoryUsage": "455.4MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482210777,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 11.23,
+          "memoryUsage": "6.969MiB / 128MiB"
+        },
+        {
+          "at": 1794482211275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 45.41,
+          "memoryUsage": "455.4MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482211275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 11.23,
+          "memoryUsage": "6.969MiB / 128MiB"
+        },
+        {
+          "at": 1794482211774,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 44.01,
+          "memoryUsage": "455.2MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482211774,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 11.66,
+          "memoryUsage": "6.773MiB / 128MiB"
+        },
+        {
+          "at": 1794482212275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 44.01,
+          "memoryUsage": "455.2MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482212275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 11.66,
+          "memoryUsage": "6.773MiB / 128MiB"
+        }
+      ]
+    },
+    {
+      "name": "same-handle-cold",
+      "concurrency": 1,
+      "elapsedMs": 1006,
+      "requests": 1,
+      "statuses": {
+        "200": 1
+      },
+      "requestsPerSecond": 0.99,
+      "medianMs": 1006.13,
+      "p95Ms": 1006.13,
+      "maxMs": 1006.13,
+      "codeforcesCalls": 1,
+      "maxConcurrentCodeforcesCalls": 1,
+      "callsByHandle": {
+        "cold_shared_1": 1
+      },
+      "redisCommandDelta": 20,
+      "invalidResponses": 0,
+      "upstreamTimeWaitSockets": 157,
+      "resources": [
+        {
+          "at": 1794482212774,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 43.61,
+          "memoryUsage": "455.5MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482212774,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 11.6,
+          "memoryUsage": "6.652MiB / 128MiB"
+        },
+        {
+          "at": 1794482213275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 43.61,
+          "memoryUsage": "455.5MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482213275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 11.6,
+          "memoryUsage": "6.652MiB / 128MiB"
+        },
+        {
+          "at": 1794482213775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 3.59,
+          "memoryUsage": "453.2MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482213775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 7.31,
+          "memoryUsage": "7.863MiB / 128MiB"
+        }
+      ]
+    },
+    {
+      "name": "different-handles-cold",
+      "concurrency": 1,
+      "elapsedMs": 1006,
+      "requests": 1,
+      "statuses": {
+        "200": 1
+      },
+      "requestsPerSecond": 0.99,
+      "medianMs": 1005.22,
+      "p95Ms": 1005.22,
+      "maxMs": 1005.22,
+      "codeforcesCalls": 1,
+      "maxConcurrentCodeforcesCalls": 1,
+      "callsByHandle": {
+        "cold_distinct_1_0": 1
+      },
+      "redisCommandDelta": 18,
+      "invalidResponses": 0,
+      "upstreamTimeWaitSockets": 157,
+      "resources": [
+        {
+          "at": 1794482214274,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 3.59,
+          "memoryUsage": "453.2MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482214274,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 7.31,
+          "memoryUsage": "7.863MiB / 128MiB"
+        },
+        {
+          "at": 1794482214774,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 0.87,
+          "memoryUsage": "454.5MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482214774,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 6.59,
+          "memoryUsage": "7.078MiB / 128MiB"
+        }
+      ]
+    },
+    {
+      "name": "cache-hit",
+      "concurrency": 10,
+      "elapsedMs": 30000,
+      "requests": 277985,
+      "statuses": {
+        "200": 277985
+      },
+      "requestsPerSecond": 9266.17,
+      "medianMs": 0.99,
+      "p95Ms": 1.33,
+      "maxMs": 18.94,
+      "codeforcesCalls": 0,
+      "maxConcurrentCodeforcesCalls": 0,
+      "callsByHandle": {},
+      "redisCommandDelta": 834015,
+      "invalidResponses": 0,
+      "upstreamTimeWaitSockets": 607,
+      "resources": [
+        {
+          "at": 1794482216275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 0.58,
+          "memoryUsage": "453.3MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482216275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 4.54,
+          "memoryUsage": "6.273MiB / 128MiB"
+        },
+        {
+          "at": 1794482216774,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 142.67,
+          "memoryUsage": "457.3MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482216774,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 9.5,
+          "memoryUsage": "8.16MiB / 128MiB"
+        },
+        {
+          "at": 1794482217276,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 142.67,
+          "memoryUsage": "457.3MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482217276,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 9.5,
+          "memoryUsage": "8.16MiB / 128MiB"
+        },
+        {
+          "at": 1794482217775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 299.22,
+          "memoryUsage": "457.9MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482217775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 22.55,
+          "memoryUsage": "8.094MiB / 128MiB"
+        },
+        {
+          "at": 1794482218275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 299.22,
+          "memoryUsage": "457.9MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482218275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 22.55,
+          "memoryUsage": "8.094MiB / 128MiB"
+        },
+        {
+          "at": 1794482218775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 159.1,
+          "memoryUsage": "458.3MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482218775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.84,
+          "memoryUsage": "7.898MiB / 128MiB"
+        },
+        {
+          "at": 1794482219275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 159.1,
+          "memoryUsage": "458.3MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482219275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.84,
+          "memoryUsage": "7.898MiB / 128MiB"
+        },
+        {
+          "at": 1794482219774,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 144.34,
+          "memoryUsage": "457.7MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482219774,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.17,
+          "memoryUsage": "7.246MiB / 128MiB"
+        },
+        {
+          "at": 1794482220275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 144.34,
+          "memoryUsage": "457.7MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482220275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.17,
+          "memoryUsage": "7.246MiB / 128MiB"
+        },
+        {
+          "at": 1794482220775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 148.85,
+          "memoryUsage": "458.3MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482220775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.96,
+          "memoryUsage": "7.094MiB / 128MiB"
+        },
+        {
+          "at": 1794482221276,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 148.85,
+          "memoryUsage": "458.3MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482221276,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.96,
+          "memoryUsage": "7.094MiB / 128MiB"
+        },
+        {
+          "at": 1794482221775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 144.51,
+          "memoryUsage": "458.2MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482221775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.67,
+          "memoryUsage": "7.578MiB / 128MiB"
+        },
+        {
+          "at": 1794482222275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 144.51,
+          "memoryUsage": "458.2MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482222275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.67,
+          "memoryUsage": "7.578MiB / 128MiB"
+        },
+        {
+          "at": 1794482222774,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 143.8,
+          "memoryUsage": "458.8MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482222775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.64,
+          "memoryUsage": "7.516MiB / 128MiB"
+        },
+        {
+          "at": 1794482223275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 143.8,
+          "memoryUsage": "458.8MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482223275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.64,
+          "memoryUsage": "7.516MiB / 128MiB"
+        },
+        {
+          "at": 1794482223775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 145.98,
+          "memoryUsage": "458.5MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482223775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 22.29,
+          "memoryUsage": "6.98MiB / 128MiB"
+        },
+        {
+          "at": 1794482224275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 145.98,
+          "memoryUsage": "458.5MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482224275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 22.29,
+          "memoryUsage": "6.98MiB / 128MiB"
+        },
+        {
+          "at": 1794482224775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 145.87,
+          "memoryUsage": "458.4MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482224775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.62,
+          "memoryUsage": "6.992MiB / 128MiB"
+        },
+        {
+          "at": 1794482225275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 145.87,
+          "memoryUsage": "458.4MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482225275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.62,
+          "memoryUsage": "6.992MiB / 128MiB"
+        },
+        {
+          "at": 1794482225775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 145.49,
+          "memoryUsage": "458.5MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482225775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 22.26,
+          "memoryUsage": "7.469MiB / 128MiB"
+        },
+        {
+          "at": 1794482226275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 145.49,
+          "memoryUsage": "458.5MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482226275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 22.26,
+          "memoryUsage": "7.469MiB / 128MiB"
+        },
+        {
+          "at": 1794482226775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 143.64,
+          "memoryUsage": "458.8MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482226775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 22.63,
+          "memoryUsage": "7.926MiB / 128MiB"
+        },
+        {
+          "at": 1794482227275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 143.64,
+          "memoryUsage": "458.8MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482227275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 22.63,
+          "memoryUsage": "7.926MiB / 128MiB"
+        },
+        {
+          "at": 1794482227775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 142.99,
+          "memoryUsage": "459.2MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482227775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 22.07,
+          "memoryUsage": "7.242MiB / 128MiB"
+        },
+        {
+          "at": 1794482228274,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 142.99,
+          "memoryUsage": "459.2MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482228274,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 22.07,
+          "memoryUsage": "7.242MiB / 128MiB"
+        },
+        {
+          "at": 1794482228775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 145.28,
+          "memoryUsage": "458.4MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482228775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 22.74,
+          "memoryUsage": "7.523MiB / 128MiB"
+        },
+        {
+          "at": 1794482229275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 145.28,
+          "memoryUsage": "458.4MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482229275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 22.74,
+          "memoryUsage": "7.523MiB / 128MiB"
+        },
+        {
+          "at": 1794482229775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 146.85,
+          "memoryUsage": "458.7MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482229775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 22.06,
+          "memoryUsage": "7.34MiB / 128MiB"
+        },
+        {
+          "at": 1794482230275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 146.85,
+          "memoryUsage": "458.7MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482230275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 22.06,
+          "memoryUsage": "7.34MiB / 128MiB"
+        },
+        {
+          "at": 1794482230776,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 150.3,
+          "memoryUsage": "458.5MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482230776,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 22.78,
+          "memoryUsage": "7.434MiB / 128MiB"
+        },
+        {
+          "at": 1794482231275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 150.3,
+          "memoryUsage": "458.5MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482231275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 22.78,
+          "memoryUsage": "7.434MiB / 128MiB"
+        },
+        {
+          "at": 1794482231775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 146.38,
+          "memoryUsage": "459MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482231775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 22.4,
+          "memoryUsage": "7.934MiB / 128MiB"
+        },
+        {
+          "at": 1794482232275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 146.38,
+          "memoryUsage": "459MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482232275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 22.4,
+          "memoryUsage": "7.934MiB / 128MiB"
+        },
+        {
+          "at": 1794482232775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 146.95,
+          "memoryUsage": "458.9MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482232775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 22.66,
+          "memoryUsage": "8.02MiB / 128MiB"
+        },
+        {
+          "at": 1794482233275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 146.95,
+          "memoryUsage": "458.9MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482233275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 22.66,
+          "memoryUsage": "8.02MiB / 128MiB"
+        },
+        {
+          "at": 1794482233775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 148.77,
+          "memoryUsage": "459MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482233775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 22.73,
+          "memoryUsage": "7.742MiB / 128MiB"
+        },
+        {
+          "at": 1794482234275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 148.77,
+          "memoryUsage": "459MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482234275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 22.73,
+          "memoryUsage": "7.742MiB / 128MiB"
+        },
+        {
+          "at": 1794482234775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 148.57,
+          "memoryUsage": "459.3MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482234775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 22.85,
+          "memoryUsage": "7.547MiB / 128MiB"
+        },
+        {
+          "at": 1794482235275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 148.57,
+          "memoryUsage": "459.3MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482235275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 22.85,
+          "memoryUsage": "7.547MiB / 128MiB"
+        },
+        {
+          "at": 1794482235775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 146.49,
+          "memoryUsage": "459MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482235775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 22.26,
+          "memoryUsage": "6.957MiB / 128MiB"
+        },
+        {
+          "at": 1794482236275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 146.49,
+          "memoryUsage": "459MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482236275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 22.26,
+          "memoryUsage": "6.957MiB / 128MiB"
+        },
+        {
+          "at": 1794482236775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 142.59,
+          "memoryUsage": "458.6MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482236775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 22.77,
+          "memoryUsage": "7.371MiB / 128MiB"
+        },
+        {
+          "at": 1794482237275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 142.59,
+          "memoryUsage": "458.6MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482237275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 22.77,
+          "memoryUsage": "7.371MiB / 128MiB"
+        },
+        {
+          "at": 1794482237775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 142.78,
+          "memoryUsage": "458.8MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482237775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 20.84,
+          "memoryUsage": "11.26MiB / 128MiB"
+        },
+        {
+          "at": 1794482238275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 142.78,
+          "memoryUsage": "458.8MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482238275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 20.84,
+          "memoryUsage": "11.26MiB / 128MiB"
+        },
+        {
+          "at": 1794482238775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 140.59,
+          "memoryUsage": "459.9MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482238775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 19.98,
+          "memoryUsage": "7.309MiB / 128MiB"
+        },
+        {
+          "at": 1794482239275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 140.59,
+          "memoryUsage": "459.9MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482239275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 19.98,
+          "memoryUsage": "7.309MiB / 128MiB"
+        },
+        {
+          "at": 1794482239775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 143.04,
+          "memoryUsage": "459.2MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482239775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.84,
+          "memoryUsage": "7.512MiB / 128MiB"
+        },
+        {
+          "at": 1794482240274,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 143.04,
+          "memoryUsage": "459.2MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482240274,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.84,
+          "memoryUsage": "7.512MiB / 128MiB"
+        },
+        {
+          "at": 1794482240775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 149.05,
+          "memoryUsage": "459MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482240775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.99,
+          "memoryUsage": "8.082MiB / 128MiB"
+        },
+        {
+          "at": 1794482241276,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 149.05,
+          "memoryUsage": "459MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482241276,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.99,
+          "memoryUsage": "8.082MiB / 128MiB"
+        },
+        {
+          "at": 1794482241776,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 140.35,
+          "memoryUsage": "459MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482241776,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.22,
+          "memoryUsage": "7.707MiB / 128MiB"
+        },
+        {
+          "at": 1794482242275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 140.35,
+          "memoryUsage": "459MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482242275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.22,
+          "memoryUsage": "7.707MiB / 128MiB"
+        },
+        {
+          "at": 1794482242775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 142.32,
+          "memoryUsage": "459MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482242775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.42,
+          "memoryUsage": "7.656MiB / 128MiB"
+        },
+        {
+          "at": 1794482243279,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 142.32,
+          "memoryUsage": "459MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482243279,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.42,
+          "memoryUsage": "7.656MiB / 128MiB"
+        },
+        {
+          "at": 1794482243775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 147.48,
+          "memoryUsage": "459.8MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482243775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 22.03,
+          "memoryUsage": "7.496MiB / 128MiB"
+        },
+        {
+          "at": 1794482244275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 147.48,
+          "memoryUsage": "459.8MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482244275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 22.03,
+          "memoryUsage": "7.496MiB / 128MiB"
+        },
+        {
+          "at": 1794482244775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 142.35,
+          "memoryUsage": "459.1MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482244775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.9,
+          "memoryUsage": "7.863MiB / 128MiB"
+        },
+        {
+          "at": 1794482245275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 142.35,
+          "memoryUsage": "459.1MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482245275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.9,
+          "memoryUsage": "7.863MiB / 128MiB"
+        },
+        {
+          "at": 1794482245775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 142.2,
+          "memoryUsage": "459.2MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482245775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 22.03,
+          "memoryUsage": "7.809MiB / 128MiB"
+        },
+        {
+          "at": 1794482246295,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 142.2,
+          "memoryUsage": "459.2MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482246295,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 22.03,
+          "memoryUsage": "7.809MiB / 128MiB"
+        }
+      ]
+    },
+    {
+      "name": "same-handle-cold",
+      "concurrency": 10,
+      "elapsedMs": 1007,
+      "requests": 10,
+      "statuses": {
+        "200": 10
+      },
+      "requestsPerSecond": 9.93,
+      "medianMs": 1006.59,
+      "p95Ms": 1006.9,
+      "maxMs": 1006.9,
+      "codeforcesCalls": 1,
+      "maxConcurrentCodeforcesCalls": 1,
+      "callsByHandle": {
+        "cold_shared_10": 1
+      },
+      "redisCommandDelta": 315,
+      "invalidResponses": 0,
+      "upstreamTimeWaitSockets": 607,
+      "resources": [
+        {
+          "at": 1794482246774,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 96.57,
+          "memoryUsage": "456.6MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482246774,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 17.48,
+          "memoryUsage": "7.117MiB / 128MiB"
+        },
+        {
+          "at": 1794482247275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 96.57,
+          "memoryUsage": "456.6MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482247275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 17.48,
+          "memoryUsage": "7.117MiB / 128MiB"
+        }
+      ]
+    },
+    {
+      "name": "different-handles-cold",
+      "concurrency": 10,
+      "elapsedMs": 1007,
+      "requests": 10,
+      "statuses": {
+        "200": 10
+      },
+      "requestsPerSecond": 9.93,
+      "medianMs": 1006.78,
+      "p95Ms": 1007.05,
+      "maxMs": 1007.05,
+      "codeforcesCalls": 10,
+      "maxConcurrentCodeforcesCalls": 10,
+      "callsByHandle": {
+        "cold_distinct_10_1": 1,
+        "cold_distinct_10_5": 1,
+        "cold_distinct_10_2": 1,
+        "cold_distinct_10_0": 1,
+        "cold_distinct_10_6": 1,
+        "cold_distinct_10_4": 1,
+        "cold_distinct_10_8": 1,
+        "cold_distinct_10_3": 1,
+        "cold_distinct_10_7": 1,
+        "cold_distinct_10_9": 1
+      },
+      "redisCommandDelta": 146,
+      "invalidResponses": 0,
+      "upstreamTimeWaitSockets": 607,
+      "resources": [
+        {
+          "at": 1794482247775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 8.5,
+          "memoryUsage": "457.8MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482247775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 4.6,
+          "memoryUsage": "7.086MiB / 128MiB"
+        },
+        {
+          "at": 1794482248274,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 8.5,
+          "memoryUsage": "457.8MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482248274,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 4.6,
+          "memoryUsage": "7.086MiB / 128MiB"
+        },
+        {
+          "at": 1794482248775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 4.8,
+          "memoryUsage": "459.5MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482248775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 6.56,
+          "memoryUsage": "7.66MiB / 128MiB"
+        }
+      ]
+    },
+    {
+      "name": "cache-hit",
+      "concurrency": 30,
+      "elapsedMs": 30001,
+      "requests": 281382,
+      "statuses": {
+        "200": 281382
+      },
+      "requestsPerSecond": 9379.09,
+      "medianMs": 2.97,
+      "p95Ms": 3.94,
+      "maxMs": 29.96,
+      "codeforcesCalls": 0,
+      "maxConcurrentCodeforcesCalls": 0,
+      "callsByHandle": {},
+      "redisCommandDelta": 844206,
+      "invalidResponses": 0,
+      "upstreamTimeWaitSockets": 620,
+      "resources": [
+        {
+          "at": 1794482250276,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 2.41,
+          "memoryUsage": "458.8MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482250276,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 4.45,
+          "memoryUsage": "7.625MiB / 128MiB"
+        },
+        {
+          "at": 1794482250776,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 94.1,
+          "memoryUsage": "466.3MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482250776,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 14.09,
+          "memoryUsage": "7.523MiB / 128MiB"
+        },
+        {
+          "at": 1794482251281,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 94.1,
+          "memoryUsage": "466.3MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482251281,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 14.09,
+          "memoryUsage": "7.523MiB / 128MiB"
+        },
+        {
+          "at": 1794482251776,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 160.72,
+          "memoryUsage": "466.5MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482251776,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.34,
+          "memoryUsage": "7.406MiB / 128MiB"
+        },
+        {
+          "at": 1794482252276,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 160.72,
+          "memoryUsage": "466.5MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482252276,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.34,
+          "memoryUsage": "7.406MiB / 128MiB"
+        },
+        {
+          "at": 1794482252775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 180.47,
+          "memoryUsage": "467.1MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482252775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 20.98,
+          "memoryUsage": "7.016MiB / 128MiB"
+        },
+        {
+          "at": 1794482253276,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 180.47,
+          "memoryUsage": "467.1MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482253276,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 20.98,
+          "memoryUsage": "7.016MiB / 128MiB"
+        },
+        {
+          "at": 1794482253776,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 158.82,
+          "memoryUsage": "467.5MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482253776,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.11,
+          "memoryUsage": "6.938MiB / 128MiB"
+        },
+        {
+          "at": 1794482254281,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 158.82,
+          "memoryUsage": "467.5MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482254281,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.11,
+          "memoryUsage": "6.938MiB / 128MiB"
+        },
+        {
+          "at": 1794482254776,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 156.34,
+          "memoryUsage": "467.9MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482254776,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.01,
+          "memoryUsage": "7.527MiB / 128MiB"
+        },
+        {
+          "at": 1794482255276,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 156.34,
+          "memoryUsage": "467.9MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482255276,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.01,
+          "memoryUsage": "7.527MiB / 128MiB"
+        },
+        {
+          "at": 1794482255776,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 161.54,
+          "memoryUsage": "467.2MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482255776,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.34,
+          "memoryUsage": "7.938MiB / 128MiB"
+        },
+        {
+          "at": 1794482256276,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 161.54,
+          "memoryUsage": "467.2MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482256276,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.34,
+          "memoryUsage": "7.938MiB / 128MiB"
+        },
+        {
+          "at": 1794482256776,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 161.04,
+          "memoryUsage": "467.6MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482256776,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21,
+          "memoryUsage": "7.879MiB / 128MiB"
+        },
+        {
+          "at": 1794482257276,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 161.04,
+          "memoryUsage": "467.6MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482257276,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21,
+          "memoryUsage": "7.879MiB / 128MiB"
+        },
+        {
+          "at": 1794482257776,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 156.77,
+          "memoryUsage": "467.9MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482257776,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.55,
+          "memoryUsage": "7.824MiB / 128MiB"
+        },
+        {
+          "at": 1794482258278,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 156.77,
+          "memoryUsage": "467.9MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482258278,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.55,
+          "memoryUsage": "7.824MiB / 128MiB"
+        },
+        {
+          "at": 1794482258776,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 164.1,
+          "memoryUsage": "467.8MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482258776,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.76,
+          "memoryUsage": "7.16MiB / 128MiB"
+        },
+        {
+          "at": 1794482259276,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 164.1,
+          "memoryUsage": "467.8MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482259276,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.76,
+          "memoryUsage": "7.16MiB / 128MiB"
+        },
+        {
+          "at": 1794482259776,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 157.94,
+          "memoryUsage": "468.8MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482259776,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.84,
+          "memoryUsage": "7.121MiB / 128MiB"
+        },
+        {
+          "at": 1794482260276,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 157.94,
+          "memoryUsage": "468.8MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482260276,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.84,
+          "memoryUsage": "7.121MiB / 128MiB"
+        },
+        {
+          "at": 1794482260776,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 156.55,
+          "memoryUsage": "469.2MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482260776,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.49,
+          "memoryUsage": "7.652MiB / 128MiB"
+        },
+        {
+          "at": 1794482261281,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 156.55,
+          "memoryUsage": "469.2MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482261281,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.49,
+          "memoryUsage": "7.652MiB / 128MiB"
+        },
+        {
+          "at": 1794482261776,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 154.72,
+          "memoryUsage": "468.9MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482261776,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.8,
+          "memoryUsage": "7.48MiB / 128MiB"
+        },
+        {
+          "at": 1794482262276,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 154.72,
+          "memoryUsage": "468.9MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482262276,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.8,
+          "memoryUsage": "7.48MiB / 128MiB"
+        },
+        {
+          "at": 1794482262776,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 157.73,
+          "memoryUsage": "469MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482262776,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 22.39,
+          "memoryUsage": "7MiB / 128MiB"
+        },
+        {
+          "at": 1794482263276,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 157.73,
+          "memoryUsage": "469MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482263276,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 22.39,
+          "memoryUsage": "7MiB / 128MiB"
+        },
+        {
+          "at": 1794482263777,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 160.92,
+          "memoryUsage": "469.3MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482263777,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.72,
+          "memoryUsage": "7.609MiB / 128MiB"
+        },
+        {
+          "at": 1794482264276,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 160.92,
+          "memoryUsage": "469.3MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482264276,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.72,
+          "memoryUsage": "7.609MiB / 128MiB"
+        },
+        {
+          "at": 1794482264776,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 152.95,
+          "memoryUsage": "468.9MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482264776,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.69,
+          "memoryUsage": "7.344MiB / 128MiB"
+        },
+        {
+          "at": 1794482265281,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 152.95,
+          "memoryUsage": "468.9MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482265281,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.69,
+          "memoryUsage": "7.344MiB / 128MiB"
+        },
+        {
+          "at": 1794482265776,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 153.7,
+          "memoryUsage": "469.4MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482265776,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.28,
+          "memoryUsage": "8.094MiB / 128MiB"
+        },
+        {
+          "at": 1794482266276,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 153.7,
+          "memoryUsage": "469.4MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482266276,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.28,
+          "memoryUsage": "8.094MiB / 128MiB"
+        },
+        {
+          "at": 1794482266777,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 154.65,
+          "memoryUsage": "469.2MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482266777,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.47,
+          "memoryUsage": "7.395MiB / 128MiB"
+        },
+        {
+          "at": 1794482267276,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 154.65,
+          "memoryUsage": "469.2MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482267276,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.47,
+          "memoryUsage": "7.395MiB / 128MiB"
+        },
+        {
+          "at": 1794482267775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 158.77,
+          "memoryUsage": "469.8MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482267775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.42,
+          "memoryUsage": "7.375MiB / 128MiB"
+        },
+        {
+          "at": 1794482268282,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 158.77,
+          "memoryUsage": "469.8MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482268282,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.42,
+          "memoryUsage": "7.375MiB / 128MiB"
+        },
+        {
+          "at": 1794482268777,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 152.31,
+          "memoryUsage": "469.3MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482268777,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.34,
+          "memoryUsage": "7.59MiB / 128MiB"
+        },
+        {
+          "at": 1794482269276,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 152.31,
+          "memoryUsage": "469.3MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482269276,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.34,
+          "memoryUsage": "7.59MiB / 128MiB"
+        },
+        {
+          "at": 1794482269776,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 154.84,
+          "memoryUsage": "469.1MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482269776,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.14,
+          "memoryUsage": "8.195MiB / 128MiB"
+        },
+        {
+          "at": 1794482270276,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 154.84,
+          "memoryUsage": "469.1MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482270276,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.14,
+          "memoryUsage": "8.195MiB / 128MiB"
+        },
+        {
+          "at": 1794482270776,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 161.44,
+          "memoryUsage": "469.6MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482270776,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.52,
+          "memoryUsage": "7.617MiB / 128MiB"
+        },
+        {
+          "at": 1794482271276,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 161.44,
+          "memoryUsage": "469.6MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482271276,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.52,
+          "memoryUsage": "7.617MiB / 128MiB"
+        },
+        {
+          "at": 1794482271784,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 150.65,
+          "memoryUsage": "468.9MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482271784,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.21,
+          "memoryUsage": "7.469MiB / 128MiB"
+        },
+        {
+          "at": 1794482272277,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 150.65,
+          "memoryUsage": "468.9MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482272277,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.21,
+          "memoryUsage": "7.469MiB / 128MiB"
+        },
+        {
+          "at": 1794482272776,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 154.95,
+          "memoryUsage": "470.1MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482272776,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.74,
+          "memoryUsage": "7.344MiB / 128MiB"
+        },
+        {
+          "at": 1794482273277,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 154.95,
+          "memoryUsage": "470.1MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482273277,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.74,
+          "memoryUsage": "7.344MiB / 128MiB"
+        },
+        {
+          "at": 1794482273776,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 152.45,
+          "memoryUsage": "470.2MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482273776,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.52,
+          "memoryUsage": "7.625MiB / 128MiB"
+        },
+        {
+          "at": 1794482274276,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 152.45,
+          "memoryUsage": "470.2MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482274276,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.52,
+          "memoryUsage": "7.625MiB / 128MiB"
+        },
+        {
+          "at": 1794482274776,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 153.45,
+          "memoryUsage": "469.8MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482274776,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 20.32,
+          "memoryUsage": "11.15MiB / 128MiB"
+        },
+        {
+          "at": 1794482275277,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 153.45,
+          "memoryUsage": "469.8MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482275277,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 20.32,
+          "memoryUsage": "11.15MiB / 128MiB"
+        },
+        {
+          "at": 1794482275776,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 151.34,
+          "memoryUsage": "469.5MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482275776,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 20.27,
+          "memoryUsage": "7.457MiB / 128MiB"
+        },
+        {
+          "at": 1794482276276,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 151.34,
+          "memoryUsage": "469.5MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482276276,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 20.27,
+          "memoryUsage": "7.457MiB / 128MiB"
+        },
+        {
+          "at": 1794482276777,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 150.98,
+          "memoryUsage": "469.8MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482276777,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.23,
+          "memoryUsage": "7.168MiB / 128MiB"
+        },
+        {
+          "at": 1794482277277,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 150.98,
+          "memoryUsage": "469.8MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482277277,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.23,
+          "memoryUsage": "7.168MiB / 128MiB"
+        },
+        {
+          "at": 1794482277776,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 152.81,
+          "memoryUsage": "469.6MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482277776,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.48,
+          "memoryUsage": "6.918MiB / 128MiB"
+        },
+        {
+          "at": 1794482278277,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 152.81,
+          "memoryUsage": "469.6MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482278277,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.48,
+          "memoryUsage": "6.918MiB / 128MiB"
+        },
+        {
+          "at": 1794482278776,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 154.23,
+          "memoryUsage": "470.1MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482278776,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.41,
+          "memoryUsage": "7.672MiB / 128MiB"
+        },
+        {
+          "at": 1794482279277,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 154.23,
+          "memoryUsage": "470.1MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482279277,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.41,
+          "memoryUsage": "7.672MiB / 128MiB"
+        },
+        {
+          "at": 1794482279776,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 151.53,
+          "memoryUsage": "469.8MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482279776,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.1,
+          "memoryUsage": "7.469MiB / 128MiB"
+        }
+      ]
+    },
+    {
+      "name": "same-handle-cold",
+      "concurrency": 30,
+      "elapsedMs": 1008,
+      "requests": 30,
+      "statuses": {
+        "200": 30
+      },
+      "requestsPerSecond": 29.76,
+      "medianMs": 1006.61,
+      "p95Ms": 1007.34,
+      "maxMs": 1007.57,
+      "codeforcesCalls": 1,
+      "maxConcurrentCodeforcesCalls": 1,
+      "callsByHandle": {
+        "cold_shared_30": 1
+      },
+      "redisCommandDelta": 975,
+      "invalidResponses": 0,
+      "upstreamTimeWaitSockets": 620,
+      "resources": [
+        {
+          "at": 1794482280274,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 151.53,
+          "memoryUsage": "469.8MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482280274,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 21.1,
+          "memoryUsage": "7.469MiB / 128MiB"
+        },
+        {
+          "at": 1794482280774,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 61.26,
+          "memoryUsage": "469.6MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482280774,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 13.84,
+          "memoryUsage": "7.109MiB / 128MiB"
+        },
+        {
+          "at": 1794482281275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 61.26,
+          "memoryUsage": "469.6MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482281275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 13.84,
+          "memoryUsage": "7.109MiB / 128MiB"
+        }
+      ]
+    },
+    {
+      "name": "different-handles-cold",
+      "concurrency": 30,
+      "elapsedMs": 1019,
+      "requests": 30,
+      "statuses": {
+        "200": 30
+      },
+      "requestsPerSecond": 29.44,
+      "medianMs": 1014.73,
+      "p95Ms": 1018.02,
+      "maxMs": 1018.06,
+      "codeforcesCalls": 30,
+      "maxConcurrentCodeforcesCalls": 30,
+      "callsByHandle": {
+        "cold_distinct_30_7": 1,
+        "cold_distinct_30_1": 1,
+        "cold_distinct_30_19": 1,
+        "cold_distinct_30_10": 1,
+        "cold_distinct_30_0": 1,
+        "cold_distinct_30_5": 1,
+        "cold_distinct_30_14": 1,
+        "cold_distinct_30_2": 1,
+        "cold_distinct_30_8": 1,
+        "cold_distinct_30_27": 1,
+        "cold_distinct_30_29": 1,
+        "cold_distinct_30_26": 1,
+        "cold_distinct_30_15": 1,
+        "cold_distinct_30_12": 1,
+        "cold_distinct_30_28": 1,
+        "cold_distinct_30_17": 1,
+        "cold_distinct_30_23": 1,
+        "cold_distinct_30_13": 1,
+        "cold_distinct_30_20": 1,
+        "cold_distinct_30_18": 1,
+        "cold_distinct_30_11": 1,
+        "cold_distinct_30_22": 1,
+        "cold_distinct_30_16": 1,
+        "cold_distinct_30_4": 1,
+        "cold_distinct_30_6": 1,
+        "cold_distinct_30_9": 1,
+        "cold_distinct_30_3": 1,
+        "cold_distinct_30_21": 1,
+        "cold_distinct_30_24": 1,
+        "cold_distinct_30_25": 1
+      },
+      "redisCommandDelta": 424,
+      "invalidResponses": 0,
+      "upstreamTimeWaitSockets": 543,
+      "resources": [
+        {
+          "at": 1794482281774,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 11.49,
+          "memoryUsage": "473.3MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482281774,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 7.32,
+          "memoryUsage": "6.996MiB / 128MiB"
+        },
+        {
+          "at": 1794482282275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 11.49,
+          "memoryUsage": "473.3MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482282275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 7.32,
+          "memoryUsage": "6.996MiB / 128MiB"
+        }
+      ]
+    },
+    {
+      "name": "cache-hit",
+      "concurrency": 100,
+      "elapsedMs": 30004,
+      "requests": 280777,
+      "statuses": {
+        "200": 280777
+      },
+      "requestsPerSecond": 9357.99,
+      "medianMs": 10.04,
+      "p95Ms": 16.55,
+      "maxMs": 49.83,
+      "codeforcesCalls": 0,
+      "maxConcurrentCodeforcesCalls": 0,
+      "callsByHandle": {},
+      "redisCommandDelta": 842393,
+      "invalidResponses": 0,
+      "upstreamTimeWaitSockets": 355,
+      "resources": [
+        {
+          "at": 1794482283783,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 0.5,
+          "memoryUsage": "472.2MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482283783,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 4.49,
+          "memoryUsage": "8.199MiB / 128MiB"
+        },
+        {
+          "at": 1794482284280,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 0.5,
+          "memoryUsage": "472.2MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482284280,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 4.49,
+          "memoryUsage": "8.199MiB / 128MiB"
+        },
+        {
+          "at": 1794482284780,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 129.41,
+          "memoryUsage": "484.1MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482284780,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 18.17,
+          "memoryUsage": "7.43MiB / 128MiB"
+        },
+        {
+          "at": 1794482285281,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 129.41,
+          "memoryUsage": "484.1MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482285281,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 18.17,
+          "memoryUsage": "7.43MiB / 128MiB"
+        },
+        {
+          "at": 1794482285782,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 156.9,
+          "memoryUsage": "484.3MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482285782,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 19.84,
+          "memoryUsage": "7.312MiB / 128MiB"
+        },
+        {
+          "at": 1794482286281,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 156.9,
+          "memoryUsage": "484.3MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482286281,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 19.84,
+          "memoryUsage": "7.312MiB / 128MiB"
+        },
+        {
+          "at": 1794482286782,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 163.34,
+          "memoryUsage": "485.6MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482286782,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 20.17,
+          "memoryUsage": "7.965MiB / 128MiB"
+        },
+        {
+          "at": 1794482287280,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 163.34,
+          "memoryUsage": "485.6MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482287280,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 20.17,
+          "memoryUsage": "7.965MiB / 128MiB"
+        },
+        {
+          "at": 1794482287781,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 156.52,
+          "memoryUsage": "485MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482287781,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 19.76,
+          "memoryUsage": "7.855MiB / 128MiB"
+        },
+        {
+          "at": 1794482288291,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 156.52,
+          "memoryUsage": "485MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482288291,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 19.76,
+          "memoryUsage": "7.855MiB / 128MiB"
+        },
+        {
+          "at": 1794482288778,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 162.01,
+          "memoryUsage": "485.6MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482288778,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 20.48,
+          "memoryUsage": "7.824MiB / 128MiB"
+        },
+        {
+          "at": 1794482289281,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 162.01,
+          "memoryUsage": "485.6MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482289281,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 20.48,
+          "memoryUsage": "7.824MiB / 128MiB"
+        },
+        {
+          "at": 1794482289780,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 160.27,
+          "memoryUsage": "485.1MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482289780,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 20.32,
+          "memoryUsage": "7.293MiB / 128MiB"
+        },
+        {
+          "at": 1794482290282,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 160.27,
+          "memoryUsage": "485.1MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482290282,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 20.32,
+          "memoryUsage": "7.293MiB / 128MiB"
+        },
+        {
+          "at": 1794482290783,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 164.83,
+          "memoryUsage": "485.7MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482290783,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 20.32,
+          "memoryUsage": "7.355MiB / 128MiB"
+        },
+        {
+          "at": 1794482291282,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 164.83,
+          "memoryUsage": "485.7MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482291282,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 20.32,
+          "memoryUsage": "7.355MiB / 128MiB"
+        },
+        {
+          "at": 1794482291782,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 165.15,
+          "memoryUsage": "485MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482291782,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 20.57,
+          "memoryUsage": "7.184MiB / 128MiB"
+        },
+        {
+          "at": 1794482292279,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 165.15,
+          "memoryUsage": "485MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482292279,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 20.57,
+          "memoryUsage": "7.184MiB / 128MiB"
+        },
+        {
+          "at": 1794482292779,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 164.92,
+          "memoryUsage": "485.7MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482292779,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 20.12,
+          "memoryUsage": "7.688MiB / 128MiB"
+        },
+        {
+          "at": 1794482293282,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 164.92,
+          "memoryUsage": "485.7MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482293282,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 20.12,
+          "memoryUsage": "7.688MiB / 128MiB"
+        },
+        {
+          "at": 1794482293782,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 162.1,
+          "memoryUsage": "485.2MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482293782,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 20.28,
+          "memoryUsage": "7.652MiB / 128MiB"
+        },
+        {
+          "at": 1794482294280,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 162.1,
+          "memoryUsage": "485.2MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482294280,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 20.28,
+          "memoryUsage": "7.652MiB / 128MiB"
+        },
+        {
+          "at": 1794482294781,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 164.55,
+          "memoryUsage": "486MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482294781,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 20.29,
+          "memoryUsage": "7.68MiB / 128MiB"
+        },
+        {
+          "at": 1794482295280,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 164.55,
+          "memoryUsage": "486MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482295280,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 20.29,
+          "memoryUsage": "7.68MiB / 128MiB"
+        },
+        {
+          "at": 1794482295779,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 160.9,
+          "memoryUsage": "485.5MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482295779,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 19.99,
+          "memoryUsage": "7.371MiB / 128MiB"
+        },
+        {
+          "at": 1794482296279,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 160.9,
+          "memoryUsage": "485.5MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482296279,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 19.99,
+          "memoryUsage": "7.371MiB / 128MiB"
+        },
+        {
+          "at": 1794482296785,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 164.9,
+          "memoryUsage": "486.1MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482296785,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 19.86,
+          "memoryUsage": "7.676MiB / 128MiB"
+        },
+        {
+          "at": 1794482297280,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 164.9,
+          "memoryUsage": "486.1MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482297280,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 19.86,
+          "memoryUsage": "7.676MiB / 128MiB"
+        },
+        {
+          "at": 1794482297781,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 160.01,
+          "memoryUsage": "485.7MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482297781,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 20.01,
+          "memoryUsage": "7.848MiB / 128MiB"
+        },
+        {
+          "at": 1794482298280,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 160.01,
+          "memoryUsage": "485.7MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482298280,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 20.01,
+          "memoryUsage": "7.848MiB / 128MiB"
+        },
+        {
+          "at": 1794482298786,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 161.4,
+          "memoryUsage": "485.8MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482298786,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 20.03,
+          "memoryUsage": "6.715MiB / 128MiB"
+        },
+        {
+          "at": 1794482299280,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 161.4,
+          "memoryUsage": "485.8MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482299280,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 20.03,
+          "memoryUsage": "6.715MiB / 128MiB"
+        },
+        {
+          "at": 1794482299782,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 162.34,
+          "memoryUsage": "486.2MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482299782,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 20.06,
+          "memoryUsage": "7.121MiB / 128MiB"
+        },
+        {
+          "at": 1794482300282,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 162.34,
+          "memoryUsage": "486.2MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482300282,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 20.06,
+          "memoryUsage": "7.121MiB / 128MiB"
+        },
+        {
+          "at": 1794482300780,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 163.11,
+          "memoryUsage": "486.4MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482300780,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 19.93,
+          "memoryUsage": "6.863MiB / 128MiB"
+        },
+        {
+          "at": 1794482301286,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 163.11,
+          "memoryUsage": "486.4MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482301286,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 19.93,
+          "memoryUsage": "6.863MiB / 128MiB"
+        },
+        {
+          "at": 1794482301782,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 159.89,
+          "memoryUsage": "485.9MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482301782,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 19.64,
+          "memoryUsage": "7.527MiB / 128MiB"
+        },
+        {
+          "at": 1794482302283,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 159.89,
+          "memoryUsage": "485.9MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482302283,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 19.64,
+          "memoryUsage": "7.527MiB / 128MiB"
+        },
+        {
+          "at": 1794482302780,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 159.63,
+          "memoryUsage": "486.1MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482302780,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 19.72,
+          "memoryUsage": "6.84MiB / 128MiB"
+        },
+        {
+          "at": 1794482303283,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 159.63,
+          "memoryUsage": "486.1MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482303283,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 19.72,
+          "memoryUsage": "6.84MiB / 128MiB"
+        },
+        {
+          "at": 1794482303786,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 165.1,
+          "memoryUsage": "485.8MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482303786,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 20.38,
+          "memoryUsage": "7.184MiB / 128MiB"
+        },
+        {
+          "at": 1794482304279,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 165.1,
+          "memoryUsage": "485.8MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482304279,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 20.38,
+          "memoryUsage": "7.184MiB / 128MiB"
+        },
+        {
+          "at": 1794482304781,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 159.42,
+          "memoryUsage": "486.6MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482304781,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 19.94,
+          "memoryUsage": "7.863MiB / 128MiB"
+        },
+        {
+          "at": 1794482305280,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 159.42,
+          "memoryUsage": "486.6MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482305280,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 19.94,
+          "memoryUsage": "7.863MiB / 128MiB"
+        },
+        {
+          "at": 1794482305783,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 163.13,
+          "memoryUsage": "487MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482305783,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 20.28,
+          "memoryUsage": "7.633MiB / 128MiB"
+        },
+        {
+          "at": 1794482306280,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 163.13,
+          "memoryUsage": "487MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482306280,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 20.28,
+          "memoryUsage": "7.633MiB / 128MiB"
+        },
+        {
+          "at": 1794482306779,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 161.01,
+          "memoryUsage": "485.5MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482306779,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 19.97,
+          "memoryUsage": "7.957MiB / 128MiB"
+        },
+        {
+          "at": 1794482307281,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 161.01,
+          "memoryUsage": "485.5MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482307281,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 19.97,
+          "memoryUsage": "7.957MiB / 128MiB"
+        },
+        {
+          "at": 1794482307792,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 162.02,
+          "memoryUsage": "486.4MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482307792,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 20.32,
+          "memoryUsage": "7.809MiB / 128MiB"
+        },
+        {
+          "at": 1794482308286,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 162.02,
+          "memoryUsage": "486.4MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482308286,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 20.32,
+          "memoryUsage": "7.809MiB / 128MiB"
+        },
+        {
+          "at": 1794482308782,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 160.38,
+          "memoryUsage": "487MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482308782,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 19.97,
+          "memoryUsage": "7.074MiB / 128MiB"
+        },
+        {
+          "at": 1794482309281,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 160.38,
+          "memoryUsage": "487MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482309281,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 19.97,
+          "memoryUsage": "7.074MiB / 128MiB"
+        },
+        {
+          "at": 1794482309779,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 160.46,
+          "memoryUsage": "487.5MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482309779,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 19.88,
+          "memoryUsage": "7.523MiB / 128MiB"
+        },
+        {
+          "at": 1794482310279,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 160.46,
+          "memoryUsage": "487.5MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482310279,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 19.88,
+          "memoryUsage": "7.523MiB / 128MiB"
+        },
+        {
+          "at": 1794482310781,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 164.58,
+          "memoryUsage": "487.9MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482310781,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 20.08,
+          "memoryUsage": "8.719MiB / 128MiB"
+        },
+        {
+          "at": 1794482311281,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 164.58,
+          "memoryUsage": "487.9MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482311281,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 20.08,
+          "memoryUsage": "8.719MiB / 128MiB"
+        },
+        {
+          "at": 1794482311781,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 162.87,
+          "memoryUsage": "487.1MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482311781,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 17.85,
+          "memoryUsage": "8.316MiB / 128MiB"
+        },
+        {
+          "at": 1794482312282,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 162.87,
+          "memoryUsage": "487.1MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482312282,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 17.85,
+          "memoryUsage": "8.316MiB / 128MiB"
+        },
+        {
+          "at": 1794482312781,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 161.33,
+          "memoryUsage": "488.2MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482312781,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 20.07,
+          "memoryUsage": "6.895MiB / 128MiB"
+        },
+        {
+          "at": 1794482313282,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 161.33,
+          "memoryUsage": "488.2MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482313282,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 20.07,
+          "memoryUsage": "6.895MiB / 128MiB"
+        },
+        {
+          "at": 1794482313888,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 163.55,
+          "memoryUsage": "488MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482313888,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 20.57,
+          "memoryUsage": "7.109MiB / 128MiB"
+        }
+      ]
+    },
+    {
+      "name": "same-handle-cold",
+      "concurrency": 100,
+      "elapsedMs": 1027,
+      "requests": 100,
+      "statuses": {
+        "200": 100
+      },
+      "requestsPerSecond": 97.37,
+      "medianMs": 1023.01,
+      "p95Ms": 1025.1,
+      "maxMs": 1025.37,
+      "codeforcesCalls": 1,
+      "maxConcurrentCodeforcesCalls": 1,
+      "callsByHandle": {
+        "cold_shared_100": 1
+      },
+      "redisCommandDelta": 3285,
+      "invalidResponses": 0,
+      "upstreamTimeWaitSockets": 355,
+      "resources": [
+        {
+          "at": 1794482314275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 163.55,
+          "memoryUsage": "488MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482314275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 20.57,
+          "memoryUsage": "7.109MiB / 128MiB"
+        },
+        {
+          "at": 1794482314774,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 26,
+          "memoryUsage": "490.1MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482314774,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 9.8,
+          "memoryUsage": "7.258MiB / 128MiB"
+        }
+      ]
+    },
+    {
+      "name": "different-handles-cold",
+      "concurrency": 100,
+      "elapsedMs": 1033,
+      "requests": 100,
+      "statuses": {
+        "200": 100
+      },
+      "requestsPerSecond": 96.81,
+      "medianMs": 1025.83,
+      "p95Ms": 1031.04,
+      "maxMs": 1031.29,
+      "codeforcesCalls": 100,
+      "maxConcurrentCodeforcesCalls": 100,
+      "callsByHandle": {
+        "cold_distinct_100_4": 1,
+        "cold_distinct_100_7": 1,
+        "cold_distinct_100_2": 1,
+        "cold_distinct_100_10": 1,
+        "cold_distinct_100_1": 1,
+        "cold_distinct_100_3": 1,
+        "cold_distinct_100_11": 1,
+        "cold_distinct_100_9": 1,
+        "cold_distinct_100_8": 1,
+        "cold_distinct_100_0": 1,
+        "cold_distinct_100_6": 1,
+        "cold_distinct_100_15": 1,
+        "cold_distinct_100_16": 1,
+        "cold_distinct_100_12": 1,
+        "cold_distinct_100_24": 1,
+        "cold_distinct_100_20": 1,
+        "cold_distinct_100_17": 1,
+        "cold_distinct_100_18": 1,
+        "cold_distinct_100_21": 1,
+        "cold_distinct_100_33": 1,
+        "cold_distinct_100_14": 1,
+        "cold_distinct_100_13": 1,
+        "cold_distinct_100_19": 1,
+        "cold_distinct_100_26": 1,
+        "cold_distinct_100_25": 1,
+        "cold_distinct_100_28": 1,
+        "cold_distinct_100_30": 1,
+        "cold_distinct_100_63": 1,
+        "cold_distinct_100_36": 1,
+        "cold_distinct_100_41": 1,
+        "cold_distinct_100_27": 1,
+        "cold_distinct_100_59": 1,
+        "cold_distinct_100_54": 1,
+        "cold_distinct_100_29": 1,
+        "cold_distinct_100_67": 1,
+        "cold_distinct_100_37": 1,
+        "cold_distinct_100_42": 1,
+        "cold_distinct_100_22": 1,
+        "cold_distinct_100_49": 1,
+        "cold_distinct_100_69": 1,
+        "cold_distinct_100_32": 1,
+        "cold_distinct_100_34": 1,
+        "cold_distinct_100_23": 1,
+        "cold_distinct_100_65": 1,
+        "cold_distinct_100_55": 1,
+        "cold_distinct_100_31": 1,
+        "cold_distinct_100_62": 1,
+        "cold_distinct_100_53": 1,
+        "cold_distinct_100_44": 1,
+        "cold_distinct_100_58": 1,
+        "cold_distinct_100_64": 1,
+        "cold_distinct_100_61": 1,
+        "cold_distinct_100_38": 1,
+        "cold_distinct_100_47": 1,
+        "cold_distinct_100_40": 1,
+        "cold_distinct_100_68": 1,
+        "cold_distinct_100_60": 1,
+        "cold_distinct_100_66": 1,
+        "cold_distinct_100_51": 1,
+        "cold_distinct_100_52": 1,
+        "cold_distinct_100_48": 1,
+        "cold_distinct_100_50": 1,
+        "cold_distinct_100_45": 1,
+        "cold_distinct_100_35": 1,
+        "cold_distinct_100_57": 1,
+        "cold_distinct_100_56": 1,
+        "cold_distinct_100_46": 1,
+        "cold_distinct_100_81": 1,
+        "cold_distinct_100_98": 1,
+        "cold_distinct_100_39": 1,
+        "cold_distinct_100_70": 1,
+        "cold_distinct_100_86": 1,
+        "cold_distinct_100_74": 1,
+        "cold_distinct_100_71": 1,
+        "cold_distinct_100_79": 1,
+        "cold_distinct_100_73": 1,
+        "cold_distinct_100_72": 1,
+        "cold_distinct_100_43": 1,
+        "cold_distinct_100_88": 1,
+        "cold_distinct_100_87": 1,
+        "cold_distinct_100_77": 1,
+        "cold_distinct_100_5": 1,
+        "cold_distinct_100_78": 1,
+        "cold_distinct_100_84": 1,
+        "cold_distinct_100_90": 1,
+        "cold_distinct_100_83": 1,
+        "cold_distinct_100_85": 1,
+        "cold_distinct_100_80": 1,
+        "cold_distinct_100_92": 1,
+        "cold_distinct_100_94": 1,
+        "cold_distinct_100_75": 1,
+        "cold_distinct_100_82": 1,
+        "cold_distinct_100_95": 1,
+        "cold_distinct_100_93": 1,
+        "cold_distinct_100_76": 1,
+        "cold_distinct_100_96": 1,
+        "cold_distinct_100_97": 1,
+        "cold_distinct_100_89": 1,
+        "cold_distinct_100_91": 1,
+        "cold_distinct_100_99": 1
+      },
+      "redisCommandDelta": 1404,
+      "invalidResponses": 0,
+      "upstreamTimeWaitSockets": 336,
+      "resources": [
+        {
+          "at": 1794482315279,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 26,
+          "memoryUsage": "490.1MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482315279,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 9.8,
+          "memoryUsage": "7.258MiB / 128MiB"
+        },
+        {
+          "at": 1794482315775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 17.83,
+          "memoryUsage": "491.6MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482315775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 7.78,
+          "memoryUsage": "7.262MiB / 128MiB"
+        },
+        {
+          "at": 1794482316274,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 17.83,
+          "memoryUsage": "491.6MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482316274,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 7.78,
+          "memoryUsage": "7.262MiB / 128MiB"
+        }
+      ]
+    },
+    {
+      "name": "redis-outage",
+      "concurrency": 1,
+      "elapsedMs": 7007,
+      "requests": 1,
+      "statuses": {
+        "200": 1
+      },
+      "requestsPerSecond": 0.14,
+      "medianMs": 7006.48,
+      "p95Ms": 7006.48,
+      "maxMs": 7006.48,
+      "codeforcesCalls": 1,
+      "maxConcurrentCodeforcesCalls": 1,
+      "callsByHandle": {
+        "outage_leader_1": 1
+      },
+      "redisCommandDelta": null,
+      "invalidResponses": 0,
+      "upstreamTimeWaitSockets": 277,
+      "resources": [
+        {
+          "at": 1794482316775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 22.77,
+          "memoryUsage": "494MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482316775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        },
+        {
+          "at": 1794482317274,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 22.77,
+          "memoryUsage": "494MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482317274,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        },
+        {
+          "at": 1794482317774,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 0.1,
+          "memoryUsage": "493.1MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482317774,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        },
+        {
+          "at": 1794482318275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 0.1,
+          "memoryUsage": "493.1MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482318275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        },
+        {
+          "at": 1794482318775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 0.5,
+          "memoryUsage": "493.2MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482318775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        },
+        {
+          "at": 1794482319274,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 0.5,
+          "memoryUsage": "493.2MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482319274,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        },
+        {
+          "at": 1794482319775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 1.54,
+          "memoryUsage": "494.6MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482319775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        },
+        {
+          "at": 1794482320275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 1.54,
+          "memoryUsage": "494.6MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482320275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        },
+        {
+          "at": 1794482320775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 0.66,
+          "memoryUsage": "494.1MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482320775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        },
+        {
+          "at": 1794482321274,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 0.66,
+          "memoryUsage": "494.1MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482321274,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        },
+        {
+          "at": 1794482321774,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 0.56,
+          "memoryUsage": "495.1MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482321774,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        },
+        {
+          "at": 1794482322275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 0.56,
+          "memoryUsage": "495.1MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482322275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        },
+        {
+          "at": 1794482322775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 1.27,
+          "memoryUsage": "494.8MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482322775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        },
+        {
+          "at": 1794482323274,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 1.27,
+          "memoryUsage": "494.8MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482323274,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        }
+      ]
+    },
+    {
+      "name": "redis-outage",
+      "concurrency": 10,
+      "elapsedMs": 7004,
+      "requests": 10,
+      "statuses": {
+        "200": 1,
+        "503": 9
+      },
+      "requestsPerSecond": 1.43,
+      "medianMs": 2016.13,
+      "p95Ms": 7003.82,
+      "maxMs": 7003.82,
+      "codeforcesCalls": 1,
+      "maxConcurrentCodeforcesCalls": 1,
+      "callsByHandle": {
+        "outage_leader_10": 1
+      },
+      "redisCommandDelta": null,
+      "invalidResponses": 0,
+      "upstreamTimeWaitSockets": 242,
+      "resources": [
+        {
+          "at": 1794482323774,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 0.56,
+          "memoryUsage": "495.7MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482323774,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        },
+        {
+          "at": 1794482324275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 0.56,
+          "memoryUsage": "495.7MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482324275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        },
+        {
+          "at": 1794482324774,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 0.4,
+          "memoryUsage": "495.2MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482324774,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        },
+        {
+          "at": 1794482325275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 0.4,
+          "memoryUsage": "495.2MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482325275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        },
+        {
+          "at": 1794482325774,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 0.73,
+          "memoryUsage": "496.7MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482325774,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        },
+        {
+          "at": 1794482326275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 0.73,
+          "memoryUsage": "496.7MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482326275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        },
+        {
+          "at": 1794482326774,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 1.37,
+          "memoryUsage": "496.7MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482326774,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        },
+        {
+          "at": 1794482327275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 1.37,
+          "memoryUsage": "496.7MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482327275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        },
+        {
+          "at": 1794482327775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 1.04,
+          "memoryUsage": "495.9MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482327775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        },
+        {
+          "at": 1794482328274,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 1.04,
+          "memoryUsage": "495.9MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482328274,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        },
+        {
+          "at": 1794482328774,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 13.29,
+          "memoryUsage": "497MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482328774,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        },
+        {
+          "at": 1794482329275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 13.29,
+          "memoryUsage": "497MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482329275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        },
+        {
+          "at": 1794482329775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 0.78,
+          "memoryUsage": "498.1MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482329775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        },
+        {
+          "at": 1794482330274,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 0.78,
+          "memoryUsage": "498.1MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482330274,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        },
+        {
+          "at": 1794482330774,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 0.12,
+          "memoryUsage": "498.1MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482330774,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        }
+      ]
+    },
+    {
+      "name": "redis-outage",
+      "concurrency": 30,
+      "elapsedMs": 7006,
+      "requests": 30,
+      "statuses": {
+        "200": 1,
+        "503": 29
+      },
+      "requestsPerSecond": 4.28,
+      "medianMs": 2006.73,
+      "p95Ms": 2009.45,
+      "maxMs": 7006.23,
+      "codeforcesCalls": 1,
+      "maxConcurrentCodeforcesCalls": 1,
+      "callsByHandle": {
+        "outage_leader_30": 1
+      },
+      "redisCommandDelta": null,
+      "invalidResponses": 0,
+      "upstreamTimeWaitSockets": 223,
+      "resources": [
+        {
+          "at": 1794482331275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 0.12,
+          "memoryUsage": "498.1MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482331275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        },
+        {
+          "at": 1794482331774,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 1.46,
+          "memoryUsage": "497.9MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482331774,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        },
+        {
+          "at": 1794482332275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 1.46,
+          "memoryUsage": "497.9MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482332275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        },
+        {
+          "at": 1794482332774,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 0.26,
+          "memoryUsage": "497.6MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482332774,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        },
+        {
+          "at": 1794482333274,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 0.26,
+          "memoryUsage": "497.6MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482333274,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        },
+        {
+          "at": 1794482333774,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 2.56,
+          "memoryUsage": "498.4MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482333774,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        },
+        {
+          "at": 1794482334275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 2.56,
+          "memoryUsage": "498.4MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482334275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        },
+        {
+          "at": 1794482334775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 0.26,
+          "memoryUsage": "498.4MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482334775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        },
+        {
+          "at": 1794482335275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 0.26,
+          "memoryUsage": "498.4MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482335275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        },
+        {
+          "at": 1794482335774,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 59.94,
+          "memoryUsage": "533.7MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482335774,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        },
+        {
+          "at": 1794482336275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 59.94,
+          "memoryUsage": "533.7MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482336275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        },
+        {
+          "at": 1794482336775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 0.58,
+          "memoryUsage": "533MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482336775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        },
+        {
+          "at": 1794482337274,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 0.58,
+          "memoryUsage": "533MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482337274,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        },
+        {
+          "at": 1794482337774,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 0.1,
+          "memoryUsage": "532.7MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482337774,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        }
+      ]
+    },
+    {
+      "name": "redis-outage",
+      "concurrency": 100,
+      "elapsedMs": 7005,
+      "requests": 100,
+      "statuses": {
+        "200": 1,
+        "503": 99
+      },
+      "requestsPerSecond": 14.28,
+      "medianMs": 2025.57,
+      "p95Ms": 2034.75,
+      "maxMs": 7004.94,
+      "codeforcesCalls": 1,
+      "maxConcurrentCodeforcesCalls": 1,
+      "callsByHandle": {
+        "outage_leader_100": 1
+      },
+      "redisCommandDelta": null,
+      "invalidResponses": 0,
+      "upstreamTimeWaitSockets": 276,
+      "resources": [
+        {
+          "at": 1794482338275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 0.1,
+          "memoryUsage": "532.7MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482338275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        },
+        {
+          "at": 1794482338775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 0.52,
+          "memoryUsage": "531.8MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482338775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        },
+        {
+          "at": 1794482339274,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 0.52,
+          "memoryUsage": "531.8MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482339274,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        },
+        {
+          "at": 1794482339774,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 0.3,
+          "memoryUsage": "532.5MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482339774,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        },
+        {
+          "at": 1794482340275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 0.3,
+          "memoryUsage": "532.5MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482340275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        },
+        {
+          "at": 1794482340775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 17.64,
+          "memoryUsage": "554.2MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482340775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        },
+        {
+          "at": 1794482341274,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 17.64,
+          "memoryUsage": "554.2MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482341274,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        },
+        {
+          "at": 1794482341774,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 0.42,
+          "memoryUsage": "554.1MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482341774,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        },
+        {
+          "at": 1794482342275,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 0.42,
+          "memoryUsage": "554.1MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482342275,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        },
+        {
+          "at": 1794482342775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 31.32,
+          "memoryUsage": "557.8MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482342775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        },
+        {
+          "at": 1794482343274,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 31.32,
+          "memoryUsage": "557.8MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482343274,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        },
+        {
+          "at": 1794482343775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 0.5,
+          "memoryUsage": "557.5MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482343775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        },
+        {
+          "at": 1794482344274,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 0.5,
+          "memoryUsage": "557.5MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482344274,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        },
+        {
+          "at": 1794482344775,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 0.08,
+          "memoryUsage": "557.4MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482344775,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 0,
+          "memoryUsage": "0B / 0B"
+        }
+      ]
+    },
+    {
+      "name": "redis-recovered-cache-hit",
+      "concurrency": 30,
+      "elapsedMs": 6,
+      "requests": 30,
+      "statuses": {
+        "200": 30
+      },
+      "requestsPerSecond": 5000,
+      "medianMs": 4.32,
+      "p95Ms": 4.74,
+      "maxMs": 4.78,
+      "codeforcesCalls": 0,
+      "maxConcurrentCodeforcesCalls": 0,
+      "callsByHandle": {},
+      "redisCommandDelta": 92,
+      "invalidResponses": 0,
+      "upstreamTimeWaitSockets": 253,
+      "resources": []
+    },
+    {
+      "name": "redis-recovered-cold",
+      "concurrency": 30,
+      "elapsedMs": 1018,
+      "requests": 30,
+      "statuses": {
+        "200": 30
+      },
+      "requestsPerSecond": 29.47,
+      "medianMs": 1016.47,
+      "p95Ms": 1017.32,
+      "maxMs": 1017.37,
+      "codeforcesCalls": 1,
+      "maxConcurrentCodeforcesCalls": 1,
+      "callsByHandle": {
+        "recovery_cold": 1
+      },
+      "redisCommandDelta": 975,
+      "invalidResponses": 0,
+      "upstreamTimeWaitSockets": 226,
+      "resources": [
+        {
+          "at": 1794482351274,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 11.4,
+          "memoryUsage": "561.6MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482351274,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 2.37,
+          "memoryUsage": "7.418MiB / 128MiB"
+        },
+        {
+          "at": 1794482351774,
+          "container": "virter-load-c34e0c23-backend-1",
+          "cpuPercent": 69.17,
+          "memoryUsage": "577.6MiB / 31.26GiB"
+        },
+        {
+          "at": 1794482351774,
+          "container": "virter-load-c34e0c23-redis-1",
+          "cpuPercent": 10.96,
+          "memoryUsage": "6.809MiB / 128MiB"
+        }
+      ]
+    }
+  ],
+  "frontUrl": "http://127.0.0.1:32773",
+  "redisRecoveryMs": 5816
+}
