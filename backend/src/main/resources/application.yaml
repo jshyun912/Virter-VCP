@@ -17,6 +17,7 @@ management:
     address: 127.0.0.1
 app:
   codeforces:
+    base-url: https://codeforces.com/api
     connect-timeout: 5s
     read-timeout: 30s
 
