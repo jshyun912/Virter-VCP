@@ -126,6 +126,14 @@ NPM, 프론트엔드, 백엔드는 같은 Compose에서 실행한다. NPM과 프
 
 Redis도 같은 Compose의 app 네트워크에 참가하며 6379를 호스트에 공개하지 않는다. 백엔드는 Redis의 인증된 헬스체크가 성공한 뒤 시작한다.
 
+### 프론트엔드와 백엔드 사이의 연결
+
+`front/nginx.conf`는 `/api/*` 요청의 접두사를 제거하고 이름 있는 `virter_backend` upstream으로 전달한다. HTTP/1.1과 비어 있는 `Connection` 헤더를 사용해 백엔드 연결을 재사용하며, `keepalive 32`는 워커별 유휴 연결을 최대 32개 보관한다. 이는 전체 활성 연결 수를 제한하는 설정이 아니다.
+
+Docker DNS `127.0.0.11`을 `valid=10s`로 조회하고, upstream의 `zone`과 `server backend:8080 resolve`로 컨테이너 IP 변경을 반영한다. DNS 갱신은 비동기이므로 백엔드 교체 중 일시적인 연결 오류가 발생할 수 있으며 정확히 10초 안에 복구되는 것을 보장하지 않는다. 이 설정은 오픈 소스 Nginx 1.27.3 이상이 필요하며, 1.30.6에서 검증했다.
+
+실제 연결 재사용과 백엔드 IP 변경 대응은 [Nginx 프록시 회귀 검증](tests/nginx/README.md)으로 확인한다.
+
 ### 이미지 빌드와 데이터
 
 백엔드는 Java 25 JDK 빌드 단계에서 Gradle로 `bootJar`를 실행하고, 실행 단계에는 Java 25 JRE와 `app.jar`만 복사한다. 프론트엔드는 Node.js 24 빌드 단계에서 `npm ci`와 `npm run build`를 실행하고, 생성된 정적 파일을 Nginx 이미지에 복사한다. Docker로 실행할 때 호스트에 Java·Node.js를 설치하거나 JAR·프론트엔드 빌드를 미리 만들 필요는 없다.
