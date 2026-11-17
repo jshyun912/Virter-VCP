@@ -36,6 +36,13 @@ export function parseDockerStatsLine(line) {
   return clean ? JSON.parse(clean) : null;
 }
 
+export function isValidSearchResponse(status, body) {
+  return status === 200
+    ? Array.isArray(body?.contestList) && body.contestList.length === 3
+      && body.contestList.every(c => c.id !== 1 && Number.isInteger(c.id))
+    : status === 503 && body?.message === 'SEARCH_TEMPORARILY_UNAVAILABLE';
+}
+
 async function run() {
   const seconds = Number(process.env.LOAD_DURATION_SECONDS ?? 30);
   assert.ok(Number.isInteger(seconds) && seconds >= 1 && seconds <= 300,
@@ -127,10 +134,7 @@ async function run() {
         });
         let body;
         try { body = await response.json(); } catch { /* Preserve HTTP errors such as Nginx 504. */ }
-        const valid = response.status === 200
-          ? Array.isArray(body?.contestList) && body.contestList.length <= 3
-            && body.contestList.every(c => c.id !== 1 && Number.isInteger(c.id))
-          : response.status === 503 && body?.message === 'SEARCH_TEMPORARILY_UNAVAILABLE';
+        const valid = isValidSearchResponse(response.status, body);
         return { status: response.status, ms: performance.now() - start, valid };
       } catch (error) {
         return { status: 0, ms: performance.now() - start, valid: false, error: error.message };

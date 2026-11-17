@@ -81,6 +81,8 @@ services:
         case "$$password" in
           ''|*[!0-9a-fA-F]*) echo "Redis secret must be a non-empty hexadecimal password." >&2; exit 1 ;;
         esac
+        # 이전 실행에서 redis 소유가 된 임시 파일은 재시작 시 새로 만든다.
+        rm -f /tmp/redis-auth.conf
         printf 'requirepass %s\n' "$$password" > /tmp/redis-auth.conf
         chown redis:redis /tmp/redis-auth.conf
         exec docker-entrypoint.sh redis-server /tmp/redis-auth.conf \

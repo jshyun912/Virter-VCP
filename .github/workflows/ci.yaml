@@ -108,11 +108,15 @@ jobs:
             - name: Check backend through API proxy
               timeout-minutes: 3
               run: |
-                  curl --noproxy '*' --fail --silent --show-error \
-                    --retry 30 --retry-delay 2 --retry-all-errors \
+                  # /health는 시작 직후 실패도 1분간 캐시하므로 갱신 이후까지 기다린다.
+                  curl --noproxy '*' --fail-with-body --silent --show-error \
+                    --retry 60 --retry-delay 2 --retry-all-errors \
                     --retry-max-time 150 --max-time 5 \
                     --output /tmp/virter-health.json \
-                    http://localhost/api/health
+                    http://localhost/api/health || {
+                      cat /tmp/virter-health.json
+                      exit 1
+                    }
                   grep -q '"backendStatus":200' /tmp/virter-health.json
                   grep -q '"redisStatus":200' /tmp/virter-health.json
 

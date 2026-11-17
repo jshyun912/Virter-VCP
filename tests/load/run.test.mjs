@@ -1,6 +1,32 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { countRedisCommands, parseDockerStatsLine, summarize } from './run.mjs';
+import { countRedisCommands, isValidSearchResponse, parseDockerStatsLine, summarize } from './run.mjs';
+
+test('부하 검증 데이터의 검색 성공 응답은 대회가 정확히 세 개 있어야 한다', () => {
+  for (const contestList of [[], [{ id: 910001 }], [{ id: 910001 }, { id: 910002 }]]) {
+    assert.equal(isValidSearchResponse(200, { contestList }), false,
+      `${contestList.length}개 대회를 정상 결과로 인정하면 안 된다`);
+  }
+  assert.equal(isValidSearchResponse(200, {
+    contestList: [{ id: 910001 }, { id: 910002 }, { id: 910003 }]
+  }), true);
+  assert.equal(isValidSearchResponse(200, {
+    contestList: [{ id: 910001 }, { id: 910002 }, { id: 910003 }, { id: 910004 }]
+  }), false);
+});
+
+test('참여 이력 대회와 잘못된 ID는 거절하고 제한된 조회 실패 응답만 인정한다', () => {
+  for (const id of [1, '910001', 1.5]) {
+    assert.equal(isValidSearchResponse(200, {
+      contestList: [{ id }, { id: 910002 }, { id: 910003 }]
+    }), false);
+  }
+  assert.equal(isValidSearchResponse(200, {}), false);
+  assert.equal(isValidSearchResponse(200), false);
+  assert.equal(isValidSearchResponse(503, { message: 'SEARCH_TEMPORARILY_UNAVAILABLE' }), true);
+  assert.equal(isValidSearchResponse(503, { message: 'UNKNOWN_ERROR' }), false);
+  assert.equal(isValidSearchResponse(502, { message: 'SEARCH_TEMPORARILY_UNAVAILABLE' }), false);
+});
 
 test('상태별 건수와 지연 분포 및 처리량을 실제 측정값으로 계산한다', () => {
   const result = summarize([

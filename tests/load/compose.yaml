@@ -12,7 +12,7 @@ services:
       redis:
         condition: service_healthy
       mock-codeforces:
-        condition: service_started
+        condition: service_healthy
     networks: [load]
 
   front:
@@ -41,6 +41,15 @@ services:
     volumes:
       - ./mock-codeforces.mjs:/app/mock-codeforces.mjs:ro
     ports: ["127.0.0.1::8080"]
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:8080/__stats', { signal: AbortSignal.timeout(1000) }).then(r => process.exit(r.status === 200 ? 0 : 1)).catch(() => process.exit(1))"
+      interval: 1s
+      timeout: 2s
+      retries: 20
     networks: [load, probe]
 
 networks:
