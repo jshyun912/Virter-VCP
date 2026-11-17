@@ -81,9 +81,12 @@ curl 'http://localhost/api/search?handle=tourist&handle=Benq&dif=63'
 ```yaml
 app:
   codeforces:
+    base-url: https://codeforces.com/api
     connect-timeout: 5s
     read-timeout: 30s
 ```
+
+`base-url`은 제출 기록과 대회 목록 조회에 공통 적용한다. 기본값은 공식 API 주소이며, [로컬 부하 검증](tests/load/README.md)에서는 `APP_CODEFORCES_BASE_URL`로 모의 서버를 지정한다.
 
 ### Redis 캐시와 장애 처리
 

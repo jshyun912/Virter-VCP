@@ -80,7 +80,7 @@ class ContestListRefreshIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        RestClient.Builder builder = RestClient.builder();
+        RestClient.Builder builder = RestClient.builder().baseUrl("https://codeforces.com/api");
         server = MockRestServiceServer.bindTo(builder).build();
         service = new CodeforcesService(builder.build(), jsonMapper, redisService);
         service.setDivisionsDirectory(divisionsDirectory);

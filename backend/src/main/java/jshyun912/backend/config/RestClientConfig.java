@@ -14,6 +14,7 @@ import org.springframework.web.client.RestClient;
 public class RestClientConfig {
     @Bean
     public RestClient restClient(
+            @Value("${app.codeforces.base-url:https://codeforces.com/api}") String baseUrl,
             @Value("${app.codeforces.connect-timeout:5s}") Duration connectTimeout,
             @Value("${app.codeforces.read-timeout:30s}") Duration readTimeout
     ) {
@@ -31,6 +32,6 @@ public class RestClientConfig {
                 .build();
         JdkClientHttpRequestFactory requestFactory = new JdkClientHttpRequestFactory(httpClient);
         requestFactory.setReadTimeout(readTimeout);
-        return RestClient.builder().requestFactory(requestFactory).build();
+        return RestClient.builder().baseUrl(baseUrl).requestFactory(requestFactory).build();
     }
 }

@@ -85,7 +85,7 @@ public class CodeforcesService {
     public CodeforcesResponse<List<Submission>> getSubmissions(String handle) {
         try {
             CodeforcesResponse<List<Submission>> response = restClient.get()
-                    .uri("https://codeforces.com/api/user.status?handle={handle}", handle)
+                    .uri("/user.status?handle={handle}", handle)
                     .retrieve()
                     .onStatus(status -> status.value() == HttpStatus.BAD_REQUEST.value(), (request, errorResponse) -> {
                     })
@@ -238,7 +238,7 @@ public class CodeforcesService {
         try {
             recoverContestLists();
             CodeforcesResponse<List<Contest>> response = restClient.get()
-                    .uri("https://codeforces.com/api/contest.list?gym=false")
+                    .uri("/contest.list?gym=false")
                     .retrieve()
                     .body(new ParameterizedTypeReference<>() {
                     });

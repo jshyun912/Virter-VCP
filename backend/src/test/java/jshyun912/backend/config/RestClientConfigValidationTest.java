@@ -19,7 +19,7 @@ class RestClientConfigValidationTest {
 
         // when / then
         assertThrows(IllegalArgumentException.class, () -> config.restClient(
-                Duration.ofSeconds(connectSeconds), Duration.ofSeconds(readSeconds)));
+                "https://codeforces.com/api", Duration.ofSeconds(connectSeconds), Duration.ofSeconds(readSeconds)));
     }
 
     @ParameterizedTest
@@ -31,6 +31,6 @@ class RestClientConfigValidationTest {
 
         // when / then
         assertDoesNotThrow(() -> config.restClient(
-                Duration.ofSeconds(connectSeconds), Duration.ofSeconds(readSeconds)));
+                "https://codeforces.com/api", Duration.ofSeconds(connectSeconds), Duration.ofSeconds(readSeconds)));
     }
 }

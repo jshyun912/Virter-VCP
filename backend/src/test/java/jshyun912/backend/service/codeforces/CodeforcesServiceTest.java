@@ -47,7 +47,7 @@ import tools.jackson.databind.json.JsonMapper;
 @DisplayName("CodeforcesService")
 class CodeforcesServiceTest {
     private static final String HANDLE = "tourist";
-    private static final String USER_STATUS_URI = "https://codeforces.com/api/user.status?handle={handle}";
+    private static final String USER_STATUS_URI = "/user.status?handle={handle}";
 
     @Mock
     private JsonMapper jsonMapper;
